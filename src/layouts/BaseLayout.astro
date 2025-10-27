@@ -6,7 +6,7 @@ import Footer from "../components/Footer.astro";
 // Component Imports
 import MainHead from "../components/MainHead.astro";
 import Nav from "../components/Nav.astro";
-import { AuroraBackground } from "../components/ui/aurora-background";
+import { Background } from "../components/ui/Background";
 
 interface Props {
 	title?: string | undefined;
@@ -21,13 +21,13 @@ const { title, description } = Astro.props;
 		<MainHead title={title} description={description} />
 	</head>
 	<body>
-		<AuroraBackground client:load>
+		<Background client:load>
 			<div class="stack content-wrapper">
 				<Nav />
 				<slot />
 				<Footer />
 			</div>
-		</AuroraBackground>
+		</Background>
 
 		<script>
 			// Add "loaded" class once the document has completely loaded.
