@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Beams from "../Beams";
 
 interface BackgroundProps extends React.HTMLProps<HTMLDivElement> {
@@ -12,18 +12,25 @@ export const Background = ({
   children,
   ...props
 }: BackgroundProps) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
   return (
     <main>
       <div
         className={cn(
-          "transition-bg relative min-h-screen bg-zinc-950 text-slate-50",
+          "transition-bg relative min-h-screen bg-background text-foreground transition-opacity duration-1000 ease-in-out",
+          isLoaded ? "opacity-100" : "opacity-0",
           className,
         )}
         {...props}
       >
         <div className="absolute inset-0 overflow-hidden">
           <Beams
-            beamWidth={2.2}
+            beamWidth={2}
             beamHeight={15}
             beamNumber={12}
             lightColor="#FFCA0A"

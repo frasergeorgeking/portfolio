@@ -34,7 +34,7 @@ const { href } = Astro.props;
 
 	/* Overlay for hover effects. */
 	a::after {
-		content: '';
+		content: "";
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
@@ -44,7 +44,7 @@ const { href } = Astro.props;
 
 	a:focus::after,
 	a:hover::after {
-		background-color: hsla(var(--gray-999-basis), 0.3);
+		background-color: hsl(var(--background) / 0.3);
 	}
 
 	@media (min-width: 50em) {
