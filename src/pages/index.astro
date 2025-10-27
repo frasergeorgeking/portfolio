@@ -1,22 +1,15 @@
 ---
-import { getCollection } from 'astro:content';
 // Component Imports
-import CallToAction from '../components/CallToAction.astro';
+import CallToAction from "../components/CallToAction.astro";
 // Page section components
-import ContactCTA from '../components/ContactCTA.astro';
-import Grid from '../components/Grid.astro';
-import Hero from '../components/Hero.astro';
-import Icon from '../components/Icon.astro';
-import Pill from '../components/Pill.astro';
-import PortfolioPreview from '../components/PortfolioPreview.astro';
-import Skills from '../components/Skills.astro';
+import ContactCTA from "../components/ContactCTA.astro";
+import Grid from "../components/Grid.astro";
+import Hero from "../components/Hero.astro";
+import Icon from "../components/Icon.astro";
+import Pill from "../components/Pill.astro";
+import Skills from "../components/Skills.astro";
 // Layout import — provides basic page elements: <head>, <nav>, <footer> etc.
-import BaseLayout from '../layouts/BaseLayout.astro';
-
-// Content Fetching: List four most recent work projects
-const projects = (await getCollection('work'))
-	.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
-	.slice(0, 4);
+import BaseLayout from "../layouts/BaseLayout.astro";
 
 // Full Astro Component Syntax:
 // https://docs.astro.build/basics/astro-components/
@@ -32,9 +25,14 @@ const projects = (await getCollection('work'))
 					align="start"
 				>
 					<div class="roles">
-						<Pill><Icon icon="code" size="1.33em" /> Developer</Pill>
-						<Pill><Icon icon="microphone-stage" size="1.33em" /> Speaker</Pill>
-						<Pill><Icon icon="pencil-line" size="1.33em" /> Writer</Pill>
+						<Pill><Icon icon="code" size="1.33em" /> Developer</Pill
+						>
+						<Pill
+							><Icon icon="microphone-stage" size="1.33em" /> Speaker</Pill
+						>
+						<Pill
+							><Icon icon="pencil-line" size="1.33em" /> Writer</Pill
+						>
 					</div>
 				</Hero>
 
@@ -50,45 +48,26 @@ const projects = (await getCollection('work'))
 		</div>
 
 		<main class="wrapper stack gap-20 lg:gap-48">
-			<section class="section with-background with-cta">
-				<header class="section-header stack gap-2 lg:gap-4">
-					<h3>Selected Work</h3>
-					<p>Take a look below at some of my featured work for clients from the past few years.</p>
-				</header>
-
-				<div class="gallery">
-					<Grid variant="offset">
-						{
-							projects.map((project) => (
-								<li>
-									<PortfolioPreview project={project} />
-								</li>
-							))
-						}
-					</Grid>
-				</div>
-
-				<div class="cta">
-					<CallToAction href="/work/">
-						View All
-						<Icon icon="arrow-right" size="1.2em" />
-					</CallToAction>
-				</div>
-			</section>
-
 			<section class="section with-background bg-variant">
 				<header class="section-header stack gap-2 lg:gap-4">
 					<h3>Mentions</h3>
 					<p>
-						I have been fortunate enough to receive praise for my work in several publications. Take
-						a look below to learn more.
+						I have been fortunate enough to receive praise for my
+						work in several publications. Take a look below to learn
+						more.
 					</p>
 				</header>
 
 				<div class="gallery">
 					<Grid variant="small">
 						{
-							['Medium', 'BuzzFeed', 'The Next Web', 'awwwards.', 'TechCrunch'].map((brand) => (
+							[
+								"Medium",
+								"BuzzFeed",
+								"The Next Web",
+								"awwwards.",
+								"TechCrunch",
+							].map((brand) => (
 								<li class="mention-card">
 									<p>{brand}</p>
 								</li>
@@ -158,7 +137,7 @@ const projects = (await getCollection('work'))
 	.with-background::before {
 		--hero-bg: var(--bg-image-subtle-2);
 
-		content: '';
+		content: "";
 		position: absolute;
 		pointer-events: none;
 		left: 50%;
@@ -167,7 +146,7 @@ const projects = (await getCollection('work'))
 		top: 0;
 		transform: translateY(-75%) translateX(-50%);
 		background:
-			url('/assets/backgrounds/noise.png') top center/220px repeat,
+			url("/assets/backgrounds/noise.png") top center/220px repeat,
 			var(--hero-bg) center center / var(--bg-gradient-size) no-repeat,
 			var(--gray-999);
 		background-blend-mode: overlay, normal, normal, normal;
@@ -194,12 +173,12 @@ const projects = (await getCollection('work'))
 	@media (min-width: 50em) {
 		.section {
 			grid-template-columns: repeat(4, 1fr);
-			grid-template-areas: 'header header header header' 'gallery gallery gallery gallery';
+			grid-template-areas: "header header header header" "gallery gallery gallery gallery";
 			gap: 5rem;
 		}
 
 		.section.with-cta {
-			grid-template-areas: 'header header header cta' 'gallery gallery gallery gallery';
+			grid-template-areas: "header header header cta" "gallery gallery gallery gallery";
 		}
 
 		.section-header {
