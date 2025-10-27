@@ -30,8 +30,8 @@ export const Background = ({
       >
         <div className="absolute inset-0 overflow-hidden">
           <Beams
-            beamWidth={2}
-            beamHeight={15}
+            beamWidth={1.2}
+            beamHeight={30}
             beamNumber={12}
             lightColor="#FFCA0A"
             speed={2}
