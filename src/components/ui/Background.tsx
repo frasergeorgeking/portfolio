@@ -22,7 +22,7 @@ export const Background = ({
     <main>
       <div
         className={cn(
-          "transition-bg relative min-h-screen bg-background text-foreground transition-opacity duration-1000 ease-in-out",
+          "transition-bg relative min-h-screen bg-background text-foreground transition-opacity duration-1400 ease-in-out",
           isLoaded ? "opacity-100" : "opacity-0",
           className,
         )}
