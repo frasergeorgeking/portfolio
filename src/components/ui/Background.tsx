@@ -1,6 +1,5 @@
 "use client";
 import type React from "react";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { LightRays } from "./LightRays";
 
@@ -13,18 +12,11 @@ export const Background = ({
 	children,
 	...props
 }: BackgroundProps) => {
-	const [isLoaded, setIsLoaded] = useState(false);
-
-	useEffect(() => {
-		setIsLoaded(true);
-	}, []);
-
 	return (
 		<main>
 			<div
 				className={cn(
-					"transition-bg relative min-h-screen bg-background text-foreground transition-opacity duration-1400 ease-in-out",
-					isLoaded ? "opacity-100" : "opacity-0",
+					"relative min-h-screen bg-background text-foreground",
 					className,
 				)}
 				{...props}
