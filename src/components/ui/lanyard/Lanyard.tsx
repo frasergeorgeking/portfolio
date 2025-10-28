@@ -157,6 +157,23 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		return (): void => window.removeEventListener("resize", handleResize);
 	}, []);
 
+	// Add global pointer up listener to handle cases where pointer is released outside bounds
+	useEffect(() => {
+		const handlePointerUp = () => {
+			if (dragged) {
+				drag(false);
+			}
+		};
+
+		window.addEventListener("pointerup", handlePointerUp);
+		window.addEventListener("pointercancel", handlePointerUp);
+
+		return () => {
+			window.removeEventListener("pointerup", handlePointerUp);
+			window.removeEventListener("pointercancel", handlePointerUp);
+		};
+	}, [dragged]);
+
 	useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
 	useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
 	useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
@@ -267,11 +284,14 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 						onPointerOut={() => hover(false)}
 						// biome-ignore lint/suspicious/noExplicitAny: ThreeEvent type is complex
 						onPointerUp={(e: any) => {
-							e.target.releasePointerCapture(e.pointerId);
+							if (e.target.hasPointerCapture(e.pointerId)) {
+								e.target.releasePointerCapture(e.pointerId);
+							}
 							drag(false);
 						}}
 						// biome-ignore lint/suspicious/noExplicitAny: ThreeEvent type is complex
 						onPointerDown={(e: any) => {
+							e.stopPropagation();
 							e.target.setPointerCapture(e.pointerId);
 							drag(
 								new THREE.Vector3()
