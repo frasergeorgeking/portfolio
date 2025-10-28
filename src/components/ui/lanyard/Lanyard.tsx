@@ -39,6 +39,8 @@ export default function Lanyard({
 	fov = 20,
 	transparent = true,
 }: LanyardProps) {
+	// TODO FK: Add static Safari fallback.
+
 	return (
 		<div className="relative z-0 w-full h-screen flex justify-center items-center transform scale-100 origin-center">
 			<Canvas
@@ -49,10 +51,10 @@ export default function Lanyard({
 				}
 			>
 				<ambientLight intensity={Math.PI} />
-				<Physics gravity={gravity} timeStep={1 / 60}>
+				<Physics gravity={gravity} timeStep={1 / 30}>
 					<Band />
 				</Physics>
-				<Environment blur={0.75}>
+				<Environment>
 					<Lightformer
 						intensity={2}
 						color="white"
