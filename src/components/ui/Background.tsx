@@ -1,7 +1,8 @@
 "use client";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import React, { useEffect, useState } from "react";
-import Beams from "../Beams";
+import { LightRays } from "./LightRays";
 
 interface BackgroundProps extends React.HTMLProps<HTMLDivElement> {
 	children: React.ReactNode;
@@ -29,16 +30,15 @@ export const Background = ({
 				{...props}
 			>
 				<div className="absolute inset-0 overflow-hidden">
-					<Beams
-						beamWidth={1.2}
-						beamHeight={30}
-						beamNumber={12}
-						lightColor="#FFCA0A"
-						speed={2}
-						noiseIntensity={1.75}
-						scale={0.2}
-						rotation={30}
-					/>
+					<div className="absolute inset-0 -skew-y-3 scale-110 origin-top-left">
+						<LightRays
+							count={10}
+							color="rgba(255, 202, 10, 0.2)"
+							blur={36}
+							speed={14}
+							length="250vh"
+						/>
+					</div>
 				</div>
 				{children}
 			</div>
