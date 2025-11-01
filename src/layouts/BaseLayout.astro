@@ -3,9 +3,9 @@
 // https://docs.astro.build/en/core-concepts/layouts/
 
 import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
 // Component Imports
 import MainHead from "../components/MainHead.astro";
-import Nav from "../components/Nav.astro";
 import { Background } from "../components/ui/Background";
 
 interface Props {
@@ -22,8 +22,8 @@ const { title, description } = Astro.props;
 	</head>
 	<body>
 		<Background client:load>
-			<div class="stack content-wrapper">
-				<Nav />
+			<div class="flex flex-col relative z-10 w-full min-h-screen">
+				<Header />
 				<slot />
 				<Footer />
 			</div>
@@ -35,14 +35,5 @@ const { title, description } = Astro.props;
 				document.documentElement.classList.add("loaded"),
 			);
 		</script>
-
-		<style>
-			.content-wrapper {
-				position: relative;
-				z-index: 10;
-				width: 100%;
-				min-height: 100vh;
-			}
-		</style>
 	</body>
 </html>

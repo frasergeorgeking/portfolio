@@ -27,6 +27,8 @@ const gradientId =
 	aria-hidden="true"
 	stroke={gradient ? `url(#${gradientId})` : color}
 	fill={gradient ? `url(#${gradientId})` : color}
+	class="align-middle"
+	style={`width: var(--size, 1em); height: var(--size, 1em);`}
 	{...attrs}
 >
 	<g set:html={iconPath} />
@@ -47,11 +49,3 @@ const gradientId =
 		)
 	}
 </svg>
-
-<style>
-	svg {
-		vertical-align: middle;
-		width: var(--size, 1em);
-		height: var(--size, 1em);
-	}
-</style>

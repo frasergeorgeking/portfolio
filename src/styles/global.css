@@ -3,7 +3,6 @@
 
 /* Global variables */
 :root {
-	/* Legacy color scale - kept for gradients and specific use cases */
 	--gray-0: #ffffff;
 	--gray-50: #f3f4f7;
 	--gray-100: #e3e6ee;
@@ -16,7 +15,6 @@
 	--gray-800: #283044;
 	--gray-900: #141925;
 
-	/* Accent colors */
 	--accent-light: #fde047;
 	--accent-regular: #facc15;
 	--accent-dark: #ca8a04;
@@ -26,7 +24,6 @@
 
 	--link-color: var(--accent-light);
 
-	/* Gradients */
 	--gradient-stop-1: #fde047;
 	--gradient-stop-2: var(--accent-regular);
 	--gradient-stop-3: var(--accent-dark);
@@ -49,7 +46,6 @@
 	);
 	--gradient-stroke: linear-gradient(180deg, var(--gray-600), var(--gray-800));
 
-	/* Shadows */
 	--shadow-sm:
 		0px 6px 3px rgba(255, 255, 255, 0.01), 0px 4px 2px rgba(255, 255, 255, 0.01),
 		0px 2px 2px rgba(255, 255, 255, 0.02), 0px 0px 1px rgba(255, 255, 255, 0.03);
@@ -92,10 +88,6 @@
 		Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 	--font-body: "Public Sans", var(--font-system);
 	--font-brand: Rubik, var(--font-system);
-
-	/* Transitions */
-	--theme-transition: 0.2s ease-in-out;
-	--radius: 0.625rem;
 
 	/* Shadcn/UI Design System Colors */
 	--background: 0 0% 0%;
@@ -184,96 +176,13 @@ h5 {
 	font-size: var(--text-xl);
 }
 
-/* Utilities */
-
-.sr-only {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border-width: 0;
-}
+/* Custom non-tailwind utilities */
 
 .wrapper {
 	width: 100%;
 	max-width: 83rem;
 	margin-inline: auto;
 	padding-inline: 1.5rem;
-}
-
-.stack {
-	display: flex;
-	flex-direction: column;
-}
-
-.gap-2 {
-	gap: 0.5rem;
-}
-
-.gap-4 {
-	gap: 1rem;
-}
-
-.gap-8 {
-	gap: 2rem;
-}
-
-.gap-10 {
-	gap: 2.5rem;
-}
-
-.gap-15 {
-	gap: 3.75rem;
-}
-
-.gap-20 {
-	gap: 5rem;
-}
-
-.gap-30 {
-	gap: 7.5rem;
-}
-
-.gap-48 {
-	gap: 12rem;
-}
-
-@media (min-width: 50em) {
-	.lg\:gap-2 {
-		gap: 0.5rem;
-	}
-
-	.lg\:gap-4 {
-		gap: 1rem;
-	}
-
-	.lg\:gap-8 {
-		gap: 2rem;
-	}
-
-	.lg\:gap-10 {
-		gap: 2.5rem;
-	}
-
-	.lg\:gap-15 {
-		gap: 3.75rem;
-	}
-
-	.lg\:gap-20 {
-		gap: 5rem;
-	}
-
-	.lg\:gap-30 {
-		gap: 7.5rem;
-	}
-
-	.lg\:gap-48 {
-		gap: 12rem;
-	}
 }
 
 @theme inline {

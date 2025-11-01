@@ -1,0 +1,22 @@
+---
+import Icon from "./Icon.astro";
+import SocialLinks from "./SocialLinks.astro";
+---
+
+<header class="relative z-[9999] font-[family-name:var(--font-brand)] font-medium mb-2 lg:flex lg:justify-between lg:items-center lg:px-20 lg:py-10 lg:gap-4">
+	<div class="flex justify-between items-center gap-2 p-6 lg:w-full lg:p-0">
+		<a
+			href="/"
+			class="flex gap-2 items-center leading-tight text-[var(--gray-0)] no-underline lg:text-lg"
+		>
+			<Icon
+				icon="terminal-window"
+				color="var(--accent-regular)"
+				size="1.6em"
+				gradient
+			/>
+			Fraser King
+		</a>
+		<SocialLinks />
+	</div>
+</header>
