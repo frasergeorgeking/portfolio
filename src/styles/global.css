@@ -71,24 +71,6 @@
 			0.12
 		);
 
-	/* Text Sizes */
-	--text-sm: 0.875rem;
-	--text-base: 1rem;
-	--text-md: 1.125rem;
-	--text-lg: 1.25rem;
-	--text-xl: 1.625rem;
-	--text-2xl: 2.125rem;
-	--text-3xl: 2.625rem;
-	--text-4xl: 3.5rem;
-	--text-5xl: 4.5rem;
-
-	/* Fonts */
-	--font-system:
-		system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-		Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-	--font-body: "Public Sans", var(--font-system);
-	--font-brand: Rubik, var(--font-system);
-
 	/* Shadcn/UI Design System Colors */
 	--background: 0 0% 0%;
 	--foreground: 0 0% 98.5%;
@@ -124,7 +106,7 @@ body {
 body {
 	background-color: hsl(var(--background));
 	color: var(--gray-200);
-	font-family: var(--font-body);
+	font-family: var(--font-family-sans);
 	-webkit-font-smoothing: antialiased;
 	line-height: 1.5;
 }
@@ -145,37 +127,6 @@ a {
 	color: var(--link-color);
 }
 
-h1,
-h2,
-h3,
-h4,
-h5 {
-	line-height: 1.1;
-	font-family: var(--font-brand);
-	font-weight: 600;
-	color: var(--gray-100);
-}
-
-h1 {
-	font-size: var(--text-5xl);
-}
-
-h2 {
-	font-size: var(--text-4xl);
-}
-
-h3 {
-	font-size: var(--text-3xl);
-}
-
-h4 {
-	font-size: var(--text-2xl);
-}
-
-h5 {
-	font-size: var(--text-xl);
-}
-
 /* Custom non-tailwind utilities */
 
 .wrapper {
@@ -186,10 +137,21 @@ h5 {
 }
 
 @theme inline {
+	/* Font Families */
+	--font-family-sans:
+		"Public Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+		Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+	--font-family-display:
+		Rubik, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+
+	/* Border Radius */
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+
+	/* Colors */
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -222,6 +184,37 @@ h5 {
 
 	body {
 		@apply bg-background text-foreground;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5 {
+		line-height: 1.1;
+		font-family: var(--font-family-display);
+		font-weight: 600;
+		color: var(--gray-100);
+	}
+
+	h1 {
+		@apply text-5xl;
+	}
+
+	h2 {
+		@apply text-4xl;
+	}
+
+	h3 {
+		@apply text-3xl;
+	}
+
+	h4 {
+		@apply text-2xl;
+	}
+
+	h5 {
+		@apply text-xl;
 	}
 }
 

@@ -14,7 +14,7 @@ const { align = "center", tagline, title } = Astro.props;
 ]}>
 	<div class="flex flex-col gap-2">
 		<h1 class:list={[
-			'text-3xl lg:text-5xl text-[var(--gray-0)] font-semibold',
+			'text-3xl lg:text-5xl text-[var(--gray-0)] font-semibold font-[family-name:var(--font-family-display)]',
 			align === 'center' ? 'max-w-[37ch] mx-auto' : 'lg:max-w-none lg:mx-0'
 		]}>
 			{title}
