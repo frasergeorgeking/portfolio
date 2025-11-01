@@ -12,7 +12,7 @@
     </p>
   </div>
 
-    <div class="bento-item bento-small">
+  <div class="bento-item bento-small">
     <h3 class="bento-title">Lorem Ipsum 2</h3>
     <p class="bento-text">
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
@@ -20,7 +20,7 @@
     </p>
   </div>
 
-    <div class="bento-item bento-extra-tall">
+  <div class="bento-item bento-extra-tall">
     <h3 class="bento-title">Lorem Ipsum 3</h3>
     <p class="bento-text">
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
@@ -34,81 +34,102 @@
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
       tempor incididunt ut labore et dolore magna aliqua.
     </p>
-    </div>
+  </div>
 
-<style>
-  .bento-grid {
-    display: grid;
-    gap: 0.8rem;
-    grid-template-columns: 1fr;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  /* Tablet and up */
-  @media (min-width: 640px) {
+  <style>
     .bento-grid {
-      grid-template-columns: repeat(2, 1fr);
+      display: grid;
       gap: 0.8rem;
-      padding: 1.5rem;
-    }
-  }
-
-  /* Desktop and up */
-  @media (min-width: 1024px) {
-    .bento-grid {
-      grid-template-columns: repeat(5, 1fr);
-      grid-auto-rows: 150px;
-      gap: 1.5rem;
-      padding: 2rem;
+      grid-template-columns: 1fr;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
     }
 
-    .bento-large {
+    /* Tablet and up */
+    @media (min-width: 640px) {
+      .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+        padding: 1.5rem;
+      }
+
+      .bento-large {
         grid-column: span 3;
         grid-row: span 3;
-    }
+      }
 
-    .bento-small {
+      .bento-small {
         grid-column: span 1;
         grid-row: span 1;
-    }
+      }
 
-    .bento-tall {
+      .bento-tall {
         grid-column: span 1;
         grid-row: span 2;
-    }
+      }
 
-    .bento-extra-tall {
+      .bento-extra-tall {
         grid-column: span 1;
         grid-row: span 3;
+      }
     }
-  }
 
-  .bento-item {
-    background-color: #1f2937;
-    border-radius: 0.8rem;
-    padding: 1.5rem;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    transition: box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    min-height: 150px;
-  }
+    /* Desktop and up */
+    @media (min-width: 1024px) {
+      .bento-grid {
+        grid-template-columns: repeat(5, 1fr);
+        grid-auto-rows: 150px;
+        gap: 1.5rem;
+        padding: 2rem;
+      }
 
-  .bento-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #f3f4f6;
-    margin: 0;
-  }
+      .bento-large {
+        grid-column: span 3;
+        grid-row: span 3;
+      }
 
-  .bento-text {
-    font-size: 0.875rem;
-    color: #9ca3af;
-    margin: 0;
-    line-height: 1.6;
-  }
-</style>
+      .bento-small {
+        grid-column: span 1;
+        grid-row: span 1;
+      }
+
+      .bento-tall {
+        grid-column: span 1;
+        grid-row: span 2;
+      }
+
+      .bento-extra-tall {
+        grid-column: span 1;
+        grid-row: span 3;
+      }
+    }
+
+    .bento-item {
+      background-color: #1f2937;
+      border-radius: 0.8rem;
+      padding: 1.5rem;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      transition: box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      min-height: 150px;
+    }
+
+    .bento-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #f3f4f6;
+      margin: 0;
+    }
+
+    .bento-text {
+      font-size: 0.875rem;
+      color: #9ca3af;
+      margin: 0;
+      line-height: 1.6;
+    }
+  </style>
+</div>
