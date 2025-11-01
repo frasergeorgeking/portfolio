@@ -1,0 +1,159 @@
+---
+// Bento Grid Component
+// A responsive grid layout with various sized cards
+---
+
+<div class="bento-grid">
+  <!-- Large card - spans 2 columns on desktop -->
+  <div class="bento-item bento-large">
+    <h3 class="bento-title">Lorem Ipsum</h3>
+    <p class="bento-text">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua.
+    </p>
+  </div>
+
+  <!-- Medium card - spans 1 column -->
+  <div class="bento-item bento-medium">
+    <h3 class="bento-title">Dolor Sit</h3>
+    <p class="bento-text">
+      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+    </p>
+  </div>
+
+  <!-- Small card -->
+  <div class="bento-item bento-small">
+    <h3 class="bento-title">Amet</h3>
+    <p class="bento-text">Consectetur adipiscing elit sed do.</p>
+  </div>
+
+  <!-- Tall card - spans 2 rows on desktop -->
+  <div class="bento-item bento-tall">
+    <h3 class="bento-title">Eiusmod Tempor</h3>
+    <p class="bento-text">
+      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+      dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+      proident.
+    </p>
+  </div>
+
+  <!-- Medium card -->
+  <div class="bento-item bento-medium">
+    <h3 class="bento-title">Incididunt</h3>
+    <p class="bento-text">
+      Sed ut perspiciatis unde omnis iste natus error sit voluptatem.
+    </p>
+  </div>
+
+  <!-- Wide card - spans 2 columns -->
+  <div class="bento-item bento-wide">
+    <h3 class="bento-title">Labore Et Dolore</h3>
+    <p class="bento-text">
+      Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut
+      fugit, sed quia consequuntur magni dolores.
+    </p>
+  </div>
+
+  <!-- Small card -->
+  <div class="bento-item bento-small">
+    <h3 class="bento-title">Magna</h3>
+    <p class="bento-text">Aliqua ut enim ad minim.</p>
+  </div>
+
+  <!-- Small card -->
+  <div class="bento-item bento-small">
+    <h3 class="bento-title">Veniam</h3>
+    <p class="bento-text">Quis nostrud exercitation.</p>
+  </div>
+</div>
+
+<style>
+  .bento-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  /* Tablet and up */
+  @media (min-width: 640px) {
+    .bento-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      padding: 1.5rem;
+    }
+  }
+
+  /* Desktop and up */
+  @media (min-width: 1024px) {
+    .bento-grid {
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: 200px;
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+
+    .bento-large {
+      grid-column: span 2;
+    }
+
+    .bento-wide {
+      grid-column: span 2;
+    }
+
+    .bento-tall {
+      grid-row: span 2;
+    }
+  }
+
+  .bento-item {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    transition: box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 150px;
+  }
+
+  .bento-item:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .bento-item {
+      background-color: #1f2937;
+    }
+  }
+
+  .bento-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .bento-title {
+      color: #f3f4f6;
+    }
+  }
+
+  .bento-text {
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .bento-text {
+      color: #9ca3af;
+    }
+  }
+</style>
