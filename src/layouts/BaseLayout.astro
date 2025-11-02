@@ -2,6 +2,7 @@
 // Learn about using Astro layouts:
 // https://docs.astro.build/en/core-concepts/layouts/
 
+import DotPatternBackground from "../components/DotPatternBackground.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import MainHead from "../components/MainHead.astro";
@@ -19,6 +20,8 @@ const { title, description } = Astro.props;
 		<MainHead title={title} description={description} />
 	</head>
 	<body>
+		<DotPatternBackground />
+
 		<div class="flex flex-col relative z-10 w-full min-h-screen">
 			<Header />
 			<slot />

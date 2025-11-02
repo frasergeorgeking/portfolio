@@ -1,0 +1,15 @@
+---
+import { DotPattern } from "./ui/DotPattern";
+---
+
+<div class="fixed inset-0 z-0 overflow-hidden">
+    <DotPattern
+        client:load
+        width={20}
+        height={20}
+        cx={1}
+        cy={1}
+        cr={1}
+        className="text-gray-600/50 [mask-image:radial-gradient(70vw_circle_at_center,white,transparent)]"
+    />
+</div>
