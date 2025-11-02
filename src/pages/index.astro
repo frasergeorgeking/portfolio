@@ -4,43 +4,45 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout>
-	<div
-		class="grid w-full auto-rows-[275px] sm:auto-rows-[275px] lg:auto-rows-[180px] grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-3 lg:gap-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
-	>
-		<BentoCard
-			name="Lorem Ipsum 1"
-			icon="rocket-launch"
-			description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-			href="#"
-			cta="Learn more"
-			class="col-span-1 sm:col-span-3 lg:col-span-3 lg:row-span-3"
-		/>
+	<div class="flex justify-center w-full">
+		<div
+			class="grid auto-rows-[275px] sm:auto-rows-[275px] lg:auto-rows-[180px] grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-3 lg:gap-6 max-w-7xl p-4 sm:p-6 lg:p-8"
+		>
+			<BentoCard
+				name="Lorem Ipsum 1"
+				icon="rocket-launch"
+				description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+				href="#"
+				cta="Learn more"
+				class="col-span-1 sm:col-span-3 lg:col-span-3 lg:row-span-3"
+			/>
 
-		<BentoCard
-			name="Lorem Ipsum 2"
-			icon="code"
-			description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-			href="#"
-			cta="Learn more"
-			class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-1"
-		/>
+			<BentoCard
+				name="Lorem Ipsum 2"
+				icon="code"
+				description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+				href="#"
+				cta="Learn more"
+				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-1"
+			/>
 
-		<BentoCard
-			name="Lorem Ipsum 3"
-			icon="pencil-line"
-			description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-			href="#"
-			cta="Learn more"
-			class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-3"
-		/>
+			<BentoCard
+				name="Lorem Ipsum 3"
+				icon="pencil-line"
+				description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+				href="#"
+				cta="Learn more"
+				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-3"
+			/>
 
-		<BentoCard
-			name="Lorem Ipsum 4"
-			icon="trophy"
-			description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-			href="#"
-			cta="Learn more"
-			class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-2"
-		/>
+			<BentoCard
+				name="Lorem Ipsum 4"
+				icon="trophy"
+				description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+				href="#"
+				cta="Learn more"
+				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-2"
+			/>
+		</div>
 	</div>
 </BaseLayout>
