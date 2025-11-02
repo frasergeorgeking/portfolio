@@ -4,9 +4,7 @@
 
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
-// Component Imports
 import MainHead from "../components/MainHead.astro";
-import { Background } from "../components/ui/Background";
 
 interface Props {
 	title?: string | undefined;
@@ -21,13 +19,11 @@ const { title, description } = Astro.props;
 		<MainHead title={title} description={description} />
 	</head>
 	<body>
-		<Background client:load>
-			<div class="flex flex-col relative z-10 w-full min-h-screen">
-				<Header />
-				<slot />
-				<Footer />
-			</div>
-		</Background>
+		<div class="flex flex-col relative z-10 w-full min-h-screen">
+			<Header />
+			<slot />
+			<Footer />
+		</div>
 
 		<script>
 			// Add "loaded" class once the document has completely loaded.
