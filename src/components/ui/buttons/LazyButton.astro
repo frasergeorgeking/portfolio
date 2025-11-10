@@ -1,0 +1,27 @@
+---
+// import FancyButton from "./FancyButton.jsx"; // TODO FK: import react button.
+const { initialLabel = "Click me" } = Astro.props;
+---
+
+<style>
+    .hydrated-hide {
+        display: none;
+    }
+</style>
+
+<button
+    id="fallback-btn"
+    class="group relative px-5 py-2 rounded-full bg-neutral-800/60 text-neutral-300 font-medium text-sm transition-all duration-200 hover:bg-neutral-700/80 hover:text-neutral-100 border border-neutral-700/50 hover:border-neutral-600/50 active:scale-95 cursor-pointer"
+>
+    {initialLabel}
+</button>
+
+<!-- <FancyButton client:visible initialLabel={initialLabel} /> -->
+
+<script>
+    // TODO FK: I probably want to stick this somewhere centralized.
+    // Hide the fallback once Astro has loaded islands
+    window.addEventListener("astro:load", () => {
+        document.getElementById("fallback-btn")?.classList.add("hydrated-hide");
+    });
+</script>
