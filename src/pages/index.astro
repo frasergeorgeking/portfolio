@@ -1,8 +1,10 @@
 ---
+import BentoCardBase from "@/components/ui/bento/BentoCardBase.astro";
 import BentoCardHero from "@/components/ui/bento/BentoCardHero.astro";
 import BentoCardStandard from "@/components/ui/bento/BentoCardStandard.astro";
 import BentoCardTimeline from "@/components/ui/bento/BentoCardTimeline.astro";
 import LazyButton from "@/components/ui/buttons/LazyButton.astro";
+import Lanyard from "@/components/ui/lanyard/Lanyard";
 import Timeline from "@/components/ui/Timeline.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
@@ -63,15 +65,13 @@ const careerTimeline = [
 				</div>
 			</BentoCardHero>
 
-			<BentoCardStandard
-				name="Lorem Ipsum 2"
-				icon="code"
-				description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-				href="#"
-				cta="Learn more"
-				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-1"
-			/>
-
+			<BentoCardBase
+				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-1 sm:min-h-[350px]"
+			>
+				<div class="w-full h-[300px] sm:h-full">
+					<Lanyard client:load />
+				</div>
+			</BentoCardBase>
 			<BentoCardTimeline
 				name="Experience"
 				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-3"

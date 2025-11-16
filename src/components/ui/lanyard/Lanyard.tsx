@@ -1,4 +1,4 @@
-/// <reference path="../../../global.d.ts" />
+/// <reference path="../../../types/global.d.ts" />
 "use client";
 import {
 	Environment,
@@ -36,13 +36,13 @@ interface LanyardProps {
 export default function Lanyard({
 	position = [0, 0, 30],
 	gravity = [0, -40, 0],
-	fov = 20,
+	fov = 9,
 	transparent = true,
 }: LanyardProps) {
 	// TODO FK: Add static Safari fallback.
 
 	return (
-		<div className="relative z-0 w-full h-screen flex justify-center items-center transform scale-100 origin-center">
+		<div className="relative z-0 w-full h-full flex justify-center items-center transform scale-100 origin-center">
 			<Canvas
 				camera={{ position, fov }}
 				gl={{ alpha: transparent }}
