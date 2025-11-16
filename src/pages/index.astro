@@ -1,7 +1,28 @@
 ---
 import BentoCardHero from "@/components/ui/bento/BentoCardHero.astro";
 import BentoCardStandard from "@/components/ui/bento/BentoCardStandard.astro";
+import BentoCardTimeline from "@/components/ui/bento/BentoCardTimeline.astro";
+import LazyButton from "@/components/ui/buttons/LazyButton.astro";
+import Timeline from "@/components/ui/Timeline.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const careerTimeline = [
+	{
+		title: "Switch Studios",
+		subtitle: "L2 Client Developer",
+		date: "2022 - Present",
+	},
+	{
+		title: "Switch Studios",
+		subtitle: "L1 Client Developer",
+		date: "2021 - 2022",
+	},
+	{
+		title: "University of Suffolk",
+		subtitle: "BA Hons Computer Games Design",
+		date: "2017 - 2020",
+	},
+];
 ---
 
 <BaseLayout>
@@ -27,9 +48,18 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 				<div slot="title">
 					<h1 class="text-4xl text-neutral-300 leading-tight">
-						Design-minded Software Engineer, crafting interactive
+						Design-minded Game Developer, crafting interactive
 						experiences with an eye for player feel.
 					</h1>
+				</div>
+
+				<div slot="actions">
+					<!-- TODO FK: Add final CTA buttons. Implement Lazy wrapper. -->
+					<LazyButton initialLabel="I am a button." />
+				</div>
+
+				<div slot="footer">
+					<p class="text-neutral-300">I am a footer</p>
 				</div>
 			</BentoCardHero>
 
@@ -42,14 +72,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-1"
 			/>
 
-			<BentoCardStandard
-				name="Lorem Ipsum 3"
-				icon="pencil-line"
-				description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-				href="#"
-				cta="Learn more"
+			<BentoCardTimeline
+				name="Experience"
 				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-3"
-			/>
+			>
+				<Timeline entries={careerTimeline} />
+			</BentoCardTimeline>
 
 			<BentoCardStandard
 				name="Lorem Ipsum 4"

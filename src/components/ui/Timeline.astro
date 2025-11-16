@@ -1,0 +1,58 @@
+---
+// Vertical Timeline Component
+// Displays a vertical timeline with entries, designed to fit in bento cards
+
+export interface TimelineEntry {
+	title: string;
+	subtitle?: string;
+	date?: string;
+}
+
+interface Props {
+	entries: TimelineEntry[];
+	class?: string;
+}
+
+const { entries, class: className } = Astro.props;
+---
+
+<div class:list={["relative flex flex-col pt-6 pb-4", className]}>
+	<!-- Vertical line -->
+	<div
+		class="absolute left-3 top-6 bottom-4 w-[2px] bg-gradient-to-b from-white/20 via-white/40 to-white/20"
+	>
+	</div>
+
+	<!-- Timeline entries -->
+	<div class="flex flex-col gap-6">
+		{
+			entries.map((entry) => (
+				<div class="relative flex items-start gap-4 group">
+					<!-- Dot indicator -->
+					<div class="relative flex-shrink-0 z-10">
+						<div class="w-6 h-6 flex items-center justify-center">
+							<div class="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] group-hover:shadow-[0_0_15px_rgba(255,255,255,0.8)] transition-shadow duration-300" />
+						</div>
+					</div>
+
+					<!-- Content -->
+					<div class="flex-1 min-w-0 pt-0.5">
+						<h3 class="text-sm font-medium text-neutral-200 leading-tight">
+							{entry.title}
+						</h3>
+						{entry.subtitle && (
+							<p class="text-xs text-neutral-400 mt-0.5">
+								{entry.subtitle}
+							</p>
+						)}
+						{entry.date && (
+							<p class="text-xs text-neutral-500 mt-1">
+								{entry.date}
+							</p>
+						)}
+					</div>
+				</div>
+			))
+		}
+	</div>
+</div>
