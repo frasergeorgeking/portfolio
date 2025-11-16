@@ -75,6 +75,7 @@ export function DotPattern({
 	const id = useId();
 	const containerRef = useRef<SVGSVGElement>(null);
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+	const [isLoaded, setIsLoaded] = useState(false);
 
 	useEffect(() => {
 		const updateDimensions = () => {
@@ -88,6 +89,13 @@ export function DotPattern({
 		window.addEventListener("resize", updateDimensions);
 		return () => window.removeEventListener("resize", updateDimensions);
 	}, []);
+
+	useEffect(() => {
+		// Trigger animation after dots are rendered
+		if (dimensions.width > 0 && dimensions.height > 0) {
+			setIsLoaded(true);
+		}
+	}, [dimensions]);
 
 	const dots = Array.from(
 		{
@@ -108,50 +116,59 @@ export function DotPattern({
 	);
 
 	return (
-		<svg
-			ref={containerRef}
-			aria-hidden="true"
-			className={cn(
-				"pointer-events-none absolute inset-0 h-full w-full text-neutral-400/80",
-				className,
-			)}
-			{...props}
+		<motion.div
+			className="absolute inset-0 h-full w-full"
+			initial={{ opacity: 0, scale: 0.95 }}
+			animate={
+				isLoaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }
+			}
+			transition={{ duration: 1.2, ease: "easeOut" }}
 		>
-			<defs>
-				<radialGradient id={`${id}-gradient`}>
-					<stop offset="0%" stopColor="currentColor" stopOpacity="1" />
-					<stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-				</radialGradient>
-			</defs>
-			{dots.map((dot) => (
-				<motion.circle
-					key={`${dot.x}-${dot.y}`}
-					cx={dot.x}
-					cy={dot.y}
-					r={cr}
-					fill={glow ? `url(#${id}-gradient)` : "currentColor"}
-					initial={glow ? { opacity: 0.4, scale: 1 } : {}}
-					animate={
-						glow
-							? {
-									opacity: [0.4, 1, 0.4],
-									scale: [1, 1.5, 1],
-								}
-							: {}
-					}
-					transition={
-						glow
-							? {
-									duration: dot.duration,
-									repeat: Infinity,
-									repeatType: "reverse",
-									delay: dot.delay,
-									ease: "easeInOut",
-								}
-							: {}
-					}
-				/>
-			))}
-		</svg>
+			<svg
+				ref={containerRef}
+				aria-hidden="true"
+				className={cn(
+					"pointer-events-none absolute inset-0 h-full w-full text-neutral-400/80",
+					className,
+				)}
+				{...props}
+			>
+				<defs>
+					<radialGradient id={`${id}-gradient`}>
+						<stop offset="0%" stopColor="currentColor" stopOpacity="1" />
+						<stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+					</radialGradient>
+				</defs>
+				{dots.map((dot) => (
+					<motion.circle
+						key={`${dot.x}-${dot.y}`}
+						cx={dot.x}
+						cy={dot.y}
+						r={cr}
+						fill={glow ? `url(#${id}-gradient)` : "currentColor"}
+						initial={glow ? { opacity: 0.4, scale: 1 } : {}}
+						animate={
+							glow
+								? {
+										opacity: [0.4, 1, 0.4],
+										scale: [1, 1.5, 1],
+									}
+								: {}
+						}
+						transition={
+							glow
+								? {
+										duration: dot.duration,
+										repeat: Infinity,
+										repeatType: "reverse",
+										delay: dot.delay,
+										ease: "easeInOut",
+									}
+								: {}
+						}
+					/>
+				))}
+			</svg>
+		</motion.div>
 	);
 }
