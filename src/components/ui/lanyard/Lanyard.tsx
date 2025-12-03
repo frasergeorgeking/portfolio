@@ -20,6 +20,7 @@ import {
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { StrictWeakMap } from "@/lib/StrictWeakMap";
 import { assertNotNullish } from "@/lib/Utils";
 // TODO FK: Clean all of this up.
 import cardGLB from "./card.glb?url";
@@ -104,7 +105,9 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	const card = useRigidBodyRef();
 	const cardMaterial = useRef<THREE.Mesh>(null);
 
-	const lerpedPositions = useRef(new WeakMap<RapierRigidBody, THREE.Vector3>());
+	const lerpedPositions = useRef(
+		new StrictWeakMap<RapierRigidBody, THREE.Vector3>(),
+	);
 
 	const vec = new THREE.Vector3();
 	const ang = new THREE.Vector3();
@@ -345,8 +348,6 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 				}
 
 				const lerped = lerpedPositions.current.get(body);
-				assertNotNullish(lerped);
-
 				const clampedDistance = Math.max(
 					0.1,
 					Math.min(1, lerped.distanceTo(body.translation())),
@@ -357,11 +358,8 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 				);
 			});
 
-			// TODO FK: Implement NonNullMap?
 			const j1Pos = lerpedPositions.current.get(j1.current);
-			assertNotNullish(j1Pos);
 			const j2Pos = lerpedPositions.current.get(j2.current);
-			assertNotNullish(j2Pos);
 
 			curve.points[0].copy(j3.current.translation());
 			curve.points[1].copy(j2Pos);

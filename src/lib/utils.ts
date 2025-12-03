@@ -1,5 +1,4 @@
 import { type ClassValue, clsx } from "clsx";
-import type { RefObject } from "react";
 import { twMerge } from "tailwind-merge";
 
 /**
