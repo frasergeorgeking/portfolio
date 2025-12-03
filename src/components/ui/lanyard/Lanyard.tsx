@@ -24,6 +24,8 @@ import { StrictWeakMap } from "@/lib/StrictWeakMap";
 import { assertNotNullish } from "@/lib/Utils";
 // TODO FK: Clean all of this up.
 import cardGLB from "./card.glb?url";
+import holographicFragment from "./holographic.frag";
+import holographicPostFragment from "./holographic_post.frag";
 import lanyardImg from "./lanyard.png";
 
 extend({ MeshLineGeometry, MeshLineMaterial });
@@ -199,8 +201,12 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 			setIsSmall(window.innerWidth < 1024);
 		};
 
-		window.addEventListener("resize", handleResize);
-		return (): void => window.removeEventListener("resize", handleResize);
+		const controller = new AbortController();
+		const { signal } = controller;
+
+		window.addEventListener("resize", handleResize, { signal });
+
+		return (): void => controller.abort();
 	}, []);
 
 	// Add global pointer up listener to handle cases where pointer is released outside bounds
@@ -211,13 +217,13 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 			}
 		};
 
-		window.addEventListener("pointerup", handlePointerUp);
-		window.addEventListener("pointercancel", handlePointerUp);
+		const controller = new AbortController();
+		const { signal } = controller;
 
-		return () => {
-			window.removeEventListener("pointerup", handlePointerUp);
-			window.removeEventListener("pointercancel", handlePointerUp);
-		};
+		window.addEventListener("pointerup", handlePointerUp, { signal });
+		window.addEventListener("pointercancel", handlePointerUp, { signal });
+
+		return () => controller.abort();
 	}, [dragged]);
 
 	useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);

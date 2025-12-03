@@ -86,8 +86,12 @@ export function DotPattern({
 		};
 
 		updateDimensions();
-		window.addEventListener("resize", updateDimensions);
-		return () => window.removeEventListener("resize", updateDimensions);
+
+		const controller = new AbortController();
+		const { signal } = controller;
+
+		window.addEventListener("resize", updateDimensions, { signal });
+		return () => controller.abort();
 	}, []);
 
 	useEffect(() => {
