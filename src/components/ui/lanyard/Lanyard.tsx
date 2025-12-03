@@ -176,100 +176,16 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 			shader.uniforms.maxAngle = mat.userData.holoUniforms.maxAngle;
 			shader.uniforms.baseHoloAmount = mat.userData.holoUniforms.baseHoloAmount;
 
-			// TODO FK: Add vite shader plugin thingy.
-
 			// Add holographic functions to fragment shader
 			shader.fragmentShader = shader.fragmentShader.replace(
 				"#include <common>",
-				`
-			#include <common>
-
-			uniform float time;
-			uniform float holoIntensity;
-			uniform float rainbowScale;
-			uniform float sparkleSize;
-			uniform float minAngle;
-			uniform float maxAngle;
-			uniform float baseHoloAmount;
-
-			// Rainbow colors
-			vec3 rainbow(float t) {
-				float r = sin(t * 6.28318) * 0.5 + 0.5;
-				float g = sin(t * 6.28318 + 2.094) * 0.5 + 0.5;
-				float b = sin(t * 6.28318 + 4.189) * 0.5 + 0.5;
-				return vec3(r, g, b);
-			}
-
-			// Sparkle effect
-			float sparkle(vec2 uv, float time) {
-				vec2 sparkleUV = uv * sparkleSize;
-				sparkleUV.x += time * 0.15;
-				sparkleUV.y += time * 0.1;
-				float n1 = fract(sin(dot(sparkleUV, vec2(12.9898, 78.233))) * 43758.5453);
-				float n2 = fract(sin(dot(sparkleUV + vec2(1.0, 1.0), vec2(93.989, 67.345))) * 28653.1234);
-				return step(0.985, n1) * n2;
-			}
-
-			// Holographic pattern
-			float holoPattern(vec2 uv, float time) {
-				float stripes = sin((uv.x + uv.y) * rainbowScale + time * 1.0) * 0.5 + 0.5;
-				vec2 center = vec2(0.5, 0.5);
-				float dist = length(uv - center);
-				float waves = sin(dist * 10.0 - time * 2.0) * 0.5 + 0.5;
-				return mix(stripes, waves, 0.3);
-			}
-			`,
+				holographicFragment,
 			);
 
 			// Add holographic effect after all lighting calculations
 			shader.fragmentShader = shader.fragmentShader.replace(
 				"#include <dithering_fragment>",
-				`
-			#include <dithering_fragment>
-
-			// Get UV coordinates
-			vec2 holoUv = vMapUv;
-
-			// Calculate viewing angle
-			vec3 viewDir = normalize(vViewPosition);
-			float viewAngle = abs(dot(vNormal, viewDir));
-
-			// Angle-dependent visibility with minimum base value
-			float angleVisibility = smoothstep(minAngle, maxAngle, viewAngle) * 
-			                        (1.0 - smoothstep(maxAngle, 1.0, viewAngle));
-			// Ensure there's always some visibility
-			angleVisibility = max(angleVisibility, baseHoloAmount);
-
-			// Fresnel effect (stronger at edges)
-			float fresnel = pow(1.0 - viewAngle, 2.0);
-
-			// Holographic pattern
-			float pattern = holoPattern(holoUv, time);
-
-			// Rainbow color
-			float rainbowPos = holoUv.x + holoUv.y * 0.3 + pattern * 0.2 + time * 0.08;
-			vec3 rainbowColor = rainbow(rainbowPos);
-
-			// Sparkles
-			float sparkles = sparkle(holoUv, time);
-
-			// Base iridescence (always visible)
-			vec3 baseIridescence = rainbow(holoUv.x + holoUv.y * 0.5 + time * 0.05) * baseHoloAmount * 0.3;
-			gl_FragColor.rgb += baseIridescence;
-
-			// Apply angle-dependent holographic effect
-			float holoStrength = angleVisibility * pattern * holoIntensity;
-			gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb + rainbowColor * 0.7, holoStrength * 0.5);
-
-			// Add fresnel shimmer (always somewhat visible)
-			gl_FragColor.rgb += rainbowColor * fresnel * max(angleVisibility, 0.15) * 0.3;
-
-			// Add sparkles
-			gl_FragColor.rgb += vec3(1.0, 0.95, 1.0) * sparkles * angleVisibility * 2.0;
-
-			// Overall iridescence layer
-			gl_FragColor.rgb += rainbowColor * angleVisibility * 0.15;
-			`,
+				holographicPostFragment,
 			);
 
 			mat.userData.shader = shader;
