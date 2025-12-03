@@ -43,7 +43,7 @@ export default function Lanyard({
 	// TODO FK: Add considerations for blocking certains inputs (e.g. scrolling, selection).
 
 	return (
-		<div className="relative z-0 w-full h-full flex justify-center items-center transform scale-100 origin-center">
+		<div className="relative z-0 w-full h-full flex justify-center items-center transform scale-100 origin-center select-none [-webkit-user-select:none]">
 			<Canvas
 				camera={{ position, fov }}
 				gl={{ alpha: transparent }}
