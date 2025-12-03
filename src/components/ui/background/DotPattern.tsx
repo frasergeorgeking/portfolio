@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import type React from "react";
 import { useEffect, useId, useRef, useState } from "react";
 
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/Utils";
 
 /**
  *  DotPattern Component Props
@@ -127,7 +127,7 @@ export function DotPattern({
 			<svg
 				ref={containerRef}
 				aria-hidden="true"
-				className={cn(
+				className={mergeClassNames(
 					"pointer-events-none absolute inset-0 h-full w-full text-neutral-400/80",
 					className,
 				)}

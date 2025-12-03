@@ -7,21 +7,21 @@ import {
 	useTexture,
 } from "@react-three/drei";
 import { Canvas, extend, useFrame } from "@react-three/fiber";
-import type { RigidBodyProps } from "@react-three/rapier";
 import {
 	BallCollider,
 	CuboidCollider,
 	Physics,
+	type RapierRigidBody,
 	RigidBody,
+	type RigidBodyProps,
 	useRopeJoint,
 	useSphericalJoint,
 } from "@react-three/rapier";
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-
+import { assertNotNullish } from "@/lib/Utils";
 // TODO FK: Clean all of this up.
-// replace with your own imports, see the usage snippet for details
 import cardGLB from "./card.glb?url";
 import lanyardImg from "./lanyard.png";
 
@@ -40,7 +40,7 @@ export default function Lanyard({
 	fov = 8,
 	transparent = true,
 }: LanyardProps) {
-	// TODO FK: Add considerations for blocking certains inputs (e.g. scrolling, selection).
+	// TODO FK: Add loading feedback.
 
 	return (
 		<div className="relative z-0 w-full h-full flex justify-center items-center transform scale-100 origin-center select-none [-webkit-user-select:none]">
@@ -96,43 +96,33 @@ interface BandProps {
 }
 
 function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
-	// Using "any" for refs since the exact types depend on Rapier's internals
-	// biome-ignore lint/suspicious/noExplicitAny: Rapier internal types
-	const band = useRef<any>(null);
-	// biome-ignore lint/suspicious/noExplicitAny: Rapier internal types
-	const fixed = useRef<any>(null);
-	// biome-ignore lint/suspicious/noExplicitAny: Rapier internal types
-	const j1 = useRef<any>(null);
-	// biome-ignore lint/suspicious/noExplicitAny: Rapier internal types
-	const j2 = useRef<any>(null);
-	// biome-ignore lint/suspicious/noExplicitAny: Rapier internal types
-	const j3 = useRef<any>(null);
-	// biome-ignore lint/suspicious/noExplicitAny: Rapier internal types
-	const card = useRef<any>(null);
-	// Reference for the holographic card material
-	// biome-ignore lint/suspicious/noExplicitAny: Material type
-	const cardMaterial = useRef<any>(null);
+	const band = useRef<THREE.Mesh<MeshLineGeometry>>(null);
+	const fixed = useRigidBodyRef();
+	const j1 = useRigidBodyRef();
+	const j2 = useRigidBodyRef();
+	const j3 = useRigidBodyRef();
+	const card = useRigidBodyRef();
+	const cardMaterial = useRef<THREE.Mesh>(null);
+
+	const lerpedPositions = useRef(new WeakMap<RapierRigidBody, THREE.Vector3>());
 
 	const vec = new THREE.Vector3();
 	const ang = new THREE.Vector3();
 	const rot = new THREE.Vector3();
 	const dir = new THREE.Vector3();
 
-	// biome-ignore lint/suspicious/noExplicitAny: Dynamic RigidBody props
-	const segmentProps: any = {
+	const segmentProps = {
 		type: "dynamic" as RigidBodyProps["type"],
 		canSleep: true,
 		colliders: false,
 		angularDamping: 4,
 		linearDamping: 4,
-	};
+	} as const;
 
 	// biome-ignore lint/suspicious/noExplicitAny: GLTF nodes are dynamic
-	const { nodes, materials } = useGLTF(cardGLB) as any;
+	const { nodes, materials } = useGLTF(cardGLB) as any; // TODO FK: perform some validation here?
 
-	// Handle Astro's image import - convert ImageMetadata to string URL // TODO FK: Is this true? See how image is imported.
-	const lanyardUrl =
-		typeof lanyardImg === "string" ? lanyardImg : lanyardImg.src;
+	const lanyardUrl = lanyardImg.src;
 	const texture = useTexture(lanyardUrl);
 	const [curve] = useState(
 		() =>
@@ -153,7 +143,6 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		return false;
 	});
 
-	// Create holographic material with proper lighting
 	const holoMaterial = useMemo(() => {
 		const mat = new THREE.MeshPhysicalMaterial({
 			map: materials.base.map,
@@ -164,7 +153,6 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 			clearcoatRoughness: 0.05,
 		});
 
-		// Custom uniforms for holographic effect
 		mat.userData.holoUniforms = {
 			time: { value: 0 },
 			holoIntensity: { value: 1.6 },
@@ -187,7 +175,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 
 			// TODO FK: Add vite shader plugin thingy.
 
-			// Add holographic functions to fragment shader (vViewPosition already exists)
+			// Add holographic functions to fragment shader
 			shader.fragmentShader = shader.fragmentShader.replace(
 				"#include <common>",
 				`
@@ -346,27 +334,46 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		}
 		if (fixed.current) {
 			[j1, j2].forEach((ref) => {
-				if (!ref.current.lerped)
-					ref.current.lerped = new THREE.Vector3().copy(
-						ref.current.translation(),
+				const body = ref.current;
+				assertNotNullish(body);
+
+				if (!lerpedPositions.current.has(body)) {
+					lerpedPositions.current.set(
+						body,
+						new THREE.Vector3().copy(body.translation()),
 					);
+				}
+
+				const lerped = lerpedPositions.current.get(body);
+				assertNotNullish(lerped);
+
 				const clampedDistance = Math.max(
 					0.1,
-					Math.min(1, ref.current.lerped.distanceTo(ref.current.translation())),
+					Math.min(1, lerped.distanceTo(body.translation())),
 				);
-				ref.current.lerped.lerp(
-					ref.current.translation(),
+				lerped.lerp(
+					body.translation(),
 					delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
 				);
 			});
+
+			// TODO FK: Implement NonNullMap?
+			const j1Pos = lerpedPositions.current.get(j1.current);
+			assertNotNullish(j1Pos);
+			const j2Pos = lerpedPositions.current.get(j2.current);
+			assertNotNullish(j2Pos);
+
 			curve.points[0].copy(j3.current.translation());
-			curve.points[1].copy(j2.current.lerped);
-			curve.points[2].copy(j1.current.lerped);
+			curve.points[1].copy(j2Pos);
+			curve.points[2].copy(j1Pos);
 			curve.points[3].copy(fixed.current.translation());
-			band.current.geometry.setPoints(curve.getPoints(32));
+			band.current?.geometry.setPoints(curve.getPoints(32));
 			ang.copy(card.current.angvel());
 			rot.copy(card.current.rotation());
-			card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+			card.current.setAngvel(
+				{ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z },
+				true,
+			);
 		}
 
 		// Update holographic card effect
@@ -426,17 +433,27 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 						position={[0, -1.2, -0.05]}
 						onPointerOver={() => hover(true)}
 						onPointerOut={() => hover(false)}
-						// biome-ignore lint/suspicious/noExplicitAny: ThreeEvent type is complex
-						onPointerUp={(e: any) => {
-							if (e.target.hasPointerCapture(e.pointerId)) {
-								e.target.releasePointerCapture(e.pointerId);
+						onPointerUp={(e) => {
+							const target = e.nativeEvent.target;
+
+							if (
+								target instanceof Element &&
+								target.hasPointerCapture(e.pointerId)
+							) {
+								target.releasePointerCapture(e.pointerId);
 							}
+
 							drag(false);
 						}}
-						// biome-ignore lint/suspicious/noExplicitAny: ThreeEvent type is complex
-						onPointerDown={(e: any) => {
+						onPointerDown={(e) => {
 							e.stopPropagation();
-							e.target.setPointerCapture(e.pointerId);
+
+							const target = e.nativeEvent.target;
+
+							if (target instanceof Element) {
+								target.setPointerCapture(e.pointerId);
+							}
+
 							drag(
 								new THREE.Vector3()
 									.copy(e.point)
@@ -472,4 +489,13 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 			</mesh>
 		</>
 	);
+}
+
+/**
+ * Custom wrapper for rigid body references to workaround incorrect
+ * Rapier Use function typing.
+ * @returns Cast reference.
+ */
+function useRigidBodyRef(): React.RefObject<RapierRigidBody> {
+	return useRef<RapierRigidBody>(null) as React.RefObject<RapierRigidBody>;
 }
