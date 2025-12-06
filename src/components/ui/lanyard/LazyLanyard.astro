@@ -1,0 +1,35 @@
+---
+import Lanyard from "./Lanyard";
+---
+
+<div
+    id="skeleton"
+    class="flex flex-col h-full w-full gap-3 justify-center p-4 sm:p-6 min-h-full gap-2 flex-1 animate-pulse hidden"
+>
+    <!-- Header -->
+    <div class="h-4 w-2/5 bg-gray-200 rounded dark:bg-neutral-700 mb-5"></div>
+
+    <!-- Lines -->
+    <div class="flex flex-col gap-3 flex-1">
+        <div class="h-3 w-full bg-gray-200 rounded dark:bg-neutral-700"></div>
+        <div class="h-3 w-11/12 bg-gray-200 rounded dark:bg-neutral-700"></div>
+        <div class="h-3 w-5/6 bg-gray-200 rounded dark:bg-neutral-700"></div>
+        <div class="h-3 w-4/5 bg-gray-200 rounded dark:bg-neutral-700"></div>
+    </div>
+</div>
+
+<div class="w-full h-[300px] sm:h-full">
+    <Lanyard client:load />
+</div>
+
+<script>
+    import { GlobalEvents } from "@/events/GlobalEvents";
+
+    window.addEventListener(GlobalEvents.LanyardLoaded.type, () => {
+        document.getElementById("skeleton")?.remove();
+    });
+
+    window.setTimeout(() => {
+        document.getElementById("skeleton")?.classList.remove("hidden");
+    }, 1000);
+</script>

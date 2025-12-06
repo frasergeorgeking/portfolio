@@ -20,9 +20,9 @@ import {
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { GlobalEvents } from "@/events/GlobalEvents";
 import { StrictWeakMap } from "@/lib/StrictWeakMap";
 import { assertNotNullish } from "@/lib/Utils";
-
 import cardGLB from "./card.glb?url";
 import holographicFragment from "./holographic.frag";
 import holographicPostFragment from "./holographic_post.frag";
@@ -43,6 +43,10 @@ export default function Lanyard({
 	fov = 8,
 	transparent = true,
 }: LanyardProps) {
+	useEffect(() => {
+		window.dispatchEvent(GlobalEvents.LanyardLoaded);
+	}, []);
+
 	return (
 		<div className="relative z-0 w-full h-full flex justify-center items-center transform scale-100 origin-center select-none [-webkit-user-select:none]">
 			<Canvas
