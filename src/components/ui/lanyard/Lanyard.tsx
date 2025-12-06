@@ -22,7 +22,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { StrictWeakMap } from "@/lib/StrictWeakMap";
 import { assertNotNullish } from "@/lib/Utils";
-// TODO FK: Clean all of this up.
+
 import cardGLB from "./card.glb?url";
 import holographicFragment from "./holographic.frag";
 import holographicPostFragment from "./holographic_post.frag";
@@ -43,8 +43,6 @@ export default function Lanyard({
 	fov = 8,
 	transparent = true,
 }: LanyardProps) {
-	// TODO FK: Add loading feedback.
-
 	return (
 		<div className="relative z-0 w-full h-full flex justify-center items-center transform scale-100 origin-center select-none [-webkit-user-select:none]">
 			<Canvas
@@ -116,16 +114,15 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	const rot = new THREE.Vector3();
 	const dir = new THREE.Vector3();
 
-	const segmentProps = {
-		type: "dynamic" as RigidBodyProps["type"],
+	const segmentProps: RigidBodyProps = {
+		type: "dynamic",
 		canSleep: true,
 		colliders: false,
 		angularDamping: 4,
 		linearDamping: 4,
 	} as const;
 
-	// biome-ignore lint/suspicious/noExplicitAny: GLTF nodes are dynamic
-	const { nodes, materials } = useGLTF(cardGLB) as any; // TODO FK: perform some validation here?
+	const { nodes, materials } = useGLTF(cardGLB) as unknown as CardGLTF;
 
 	const lanyardUrl = lanyardImg.src;
 	const texture = useTexture(lanyardUrl);
@@ -308,16 +305,12 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	return (
 		<>
 			<group position={[0, 4.3, 0]}>
-				<RigidBody
-					ref={fixed}
-					{...segmentProps}
-					type={"fixed" as RigidBodyProps["type"]}
-				/>
+				<RigidBody ref={fixed} {...segmentProps} type={"fixed"} />
 				<RigidBody
 					position={[0.5, 0, 0]}
 					ref={j1}
 					{...segmentProps}
-					type={"dynamic" as RigidBodyProps["type"]}
+					type={"dynamic"}
 				>
 					<BallCollider args={[0.1]} />
 				</RigidBody>
@@ -325,7 +318,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 					position={[1, 0, 0]}
 					ref={j2}
 					{...segmentProps}
-					type={"dynamic" as RigidBodyProps["type"]}
+					type={"dynamic"}
 				>
 					<BallCollider args={[0.1]} />
 				</RigidBody>
@@ -333,7 +326,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 					position={[1.5, 0, 0]}
 					ref={j3}
 					{...segmentProps}
-					type={"dynamic" as RigidBodyProps["type"]}
+					type={"dynamic"}
 				>
 					<BallCollider args={[0.1]} />
 				</RigidBody>
@@ -341,11 +334,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 					position={[2, 0, 0]}
 					ref={card}
 					{...segmentProps}
-					type={
-						dragged
-							? ("kinematicPosition" as RigidBodyProps["type"])
-							: ("dynamic" as RigidBodyProps["type"])
-					}
+					type={dragged ? "kinematicPosition" : "dynamic"}
 				>
 					<CuboidCollider args={[0.8, 1.125, 0.01]} />
 					<group
@@ -419,3 +408,15 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 function useRigidBodyRef(): React.RefObject<RapierRigidBody> {
 	return useRef<RapierRigidBody>(null) as React.RefObject<RapierRigidBody>;
 }
+
+type CardGLTF = {
+	nodes: {
+		card: THREE.Mesh;
+		clip: THREE.Mesh;
+		clamp: THREE.Mesh;
+	};
+	materials: {
+		base: THREE.MeshStandardMaterial;
+		metal: THREE.Material;
+	};
+};
