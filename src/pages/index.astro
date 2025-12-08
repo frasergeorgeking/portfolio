@@ -1,7 +1,9 @@
 ---
+import Badge from "@/components/ui/badges/Badge.astro";
 import BentoCardBase from "@/components/ui/bento/BentoCardBase.astro";
 import BentoCardHero from "@/components/ui/bento/BentoCardHero.astro";
 import BentoCardStandard from "@/components/ui/bento/BentoCardStandard.astro";
+import BentoCardTechStack from "@/components/ui/bento/BentoCardTechStack.astro";
 import BentoCardTimeline from "@/components/ui/bento/BentoCardTimeline.astro";
 import CTAButton from "@/components/ui/buttons/CTAButton.astro";
 import LazyLanyard from "@/components/ui/lanyard/LazyLanyard.astro";
@@ -82,15 +84,27 @@ const careerTimeline = [
 				<Timeline entries={careerTimeline} />
 			</BentoCardTimeline>
 
-			<!-- TODO FK: Not sure if I love this - might have more luck just whacking in some simple stack icons or whatever. -->
-			<BentoCardStandard
-				name="Tech Stack"
-				icon="code"
-				description="Experience crafting high quality interactive front-ends with PixiJS & TypeScript."
-				href="#"
-				cta="Learn more"
+			<BentoCardTechStack
+				name="Technology"
 				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-2"
-			/>
+			>
+				<div class="flex flex-wrap gap-2">
+					<Badge label="TypeScript" icon="typescript-logo" />
+					<Badge label="JavaScript" icon="javascript-logo" />
+					<Badge label="Vite" icon="vite-logo" />
+					<Badge label="PixiJS" icon="pixi-js-logo" />
+					<Badge label="GSAP" icon="gsap-logo" />
+					<Badge label="Astro" icon="astro-logo" />
+					<Badge label="Tailwind" icon="tailwind-logo" />
+					<Badge label="C#" icon="csharp-logo" />
+					<Badge label=".NET Core" icon="dotnet-core-logo" />
+					<Badge label="Unity" icon="unity-logo" />
+					<Badge label="Unreal" icon="unreal-logo" />
+					<Badge label="GitHub" icon="github-logo" />
+					<Badge label="Copilot" icon="github-copilot-logo" />
+					<Badge label="Claude Code" icon="claude-logo" />
+				</div>
+			</BentoCardTechStack>
 		</div>
 	</div>
 </BaseLayout>
