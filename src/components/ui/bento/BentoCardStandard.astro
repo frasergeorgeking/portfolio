@@ -3,13 +3,13 @@
 // Default card variant with icon, title, description, and CTA link.
 
 import Icon from "@/components/shared/Icon.astro";
-import type { iconPaths } from "@/components/shared/IconPaths";
+import type { IconPaths } from "@/components/shared/IconPaths";
 import BentoCardBase from "./BentoCardBase.astro";
 
 interface Props {
     name: string;
     class?: string;
-    icon: keyof typeof iconPaths;
+    icon: keyof typeof IconPaths;
     description: string;
     href: string;
     cta: string;
@@ -42,7 +42,7 @@ const { name, class: className, icon, description, href, cta } = Astro.props;
         >
             <a
                 href={href}
-                class="pointer-events-auto text-sm font-medium text-primary underline-offset-4 hover:underline p-0"
+                class="pointer-events-auto text-[var(--accent-light)] text-sm font-medium underline-offset-4 hover:underline p-0"
             >
                 {cta}
                 <svg
@@ -69,7 +69,7 @@ const { name, class: className, icon, description, href, cta } = Astro.props;
     >
         <a
             href={href}
-            class="pointer-events-auto text-sm font-medium text-primary underline-offset-4 hover:underline p-0"
+            class="pointer-events-auto text-sm font-medium text-[var(--accent-light)] underline-offset-4 hover:underline p-0"
         >
             {cta}
             <svg

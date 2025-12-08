@@ -1,0 +1,33 @@
+---
+import { IconPaths } from "@/components/shared/IconPaths";
+
+interface Props {
+    href: string;
+    icon?: keyof typeof IconPaths;
+    label?: string;
+}
+
+const { icon, label, href } = Astro.props;
+---
+
+<a
+    href={href}
+    target={"_blank"}
+    rel={"noopener noreferrer"}
+    class="cta-button group relative px-5 py-2 rounded-full bg-neutral-800/60 text-neutral-300 font-medium text-sm transition-all duration-200 hover:bg-neutral-700/80 hover:text-neutral-100 border border-neutral-700/50 hover:border-neutral-600/50 active:scale-95 cursor-pointer inline-flex items-center gap-2"
+>
+    {label}
+    {
+        icon && (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 256 256"
+                class="w-4 h-4"
+                fill="currentColor"
+                stroke="currentColor"
+                aria-hidden="true"
+                set:html={IconPaths[icon]}
+            />
+        )
+    }
+</a>

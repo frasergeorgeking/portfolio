@@ -22,8 +22,6 @@
 	--accent-subtle-overlay: hsla(43, 96%, 56%, 0.33);
 	--accent-text-over: var(--gray-0);
 
-	--link-color: var(--accent-light);
-
 	--gradient-stop-1: #fde047;
 	--gradient-stop-2: var(--accent-regular);
 	--gradient-stop-3: var(--accent-dark);
@@ -121,10 +119,6 @@ body {
 img {
 	max-width: 100%;
 	height: auto;
-}
-
-a {
-	color: var(--link-color);
 }
 
 /* Custom non-tailwind utilities */
