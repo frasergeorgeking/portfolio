@@ -5,15 +5,16 @@ interface Props {
     href: string;
     icon?: keyof typeof IconPaths;
     label?: string;
+    target?: "_blank" | "_self";
 }
 
-const { icon, label, href } = Astro.props;
+const { icon, label, href, target = "_blank" } = Astro.props;
 ---
 
 <a
     href={href}
-    target={"_blank"}
-    rel={"noopener noreferrer"}
+    target={target}
+    rel={target === "_blank" ? "noopener noreferrer" : undefined}
     class="cta-button group relative px-5 py-2 rounded-full bg-neutral-800/60 text-neutral-300 font-medium text-sm transition-all duration-200 hover:bg-neutral-700/80 hover:text-neutral-100 border border-neutral-700/50 hover:border-neutral-600/50 active:scale-95 cursor-pointer inline-flex items-center gap-2"
 >
     {label}
