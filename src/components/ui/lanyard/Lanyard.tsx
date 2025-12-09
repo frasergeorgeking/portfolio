@@ -56,7 +56,7 @@ export default function Lanyard({
 					gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)
 				}
 			>
-				<ambientLight intensity={1.25} />
+				<ambientLight intensity={0.25} />
 				<Physics gravity={gravity} timeStep={1 / 30}>
 					<Band />
 				</Physics>
