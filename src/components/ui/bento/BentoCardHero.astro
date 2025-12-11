@@ -1,0 +1,29 @@
+---
+// Hero Bento Card Component
+// Hero card variant with customizable slots for complex layouts
+
+import BentoCardBase from "./BentoCardBase.astro";
+
+interface Props {
+    class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<BentoCardBase class={className}>
+    <slot name="background" slot="background" />
+
+    <div class="flex flex-col justify-between min-h-full p-6 sm:p-8 gap-8">
+        <!-- Top section -->
+        <div class="flex flex-col gap-4">
+            <slot name="header" />
+            <slot name="title" />
+        </div>
+
+        <!-- Bottom section -->
+        <div class="flex flex-col gap-4">
+            <slot name="actions" />
+        </div>
+    </div>
+</BentoCardBase>

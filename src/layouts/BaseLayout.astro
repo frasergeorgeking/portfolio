@@ -1,0 +1,38 @@
+---
+// Learn about using Astro layouts:
+// https://docs.astro.build/en/core-concepts/layouts/
+
+import DotPatternBackground from "@/components/ui/background/DotPatternBackground.astro";
+import Footer from "../components/layout/Footer.astro";
+import Header from "../components/layout/Header.astro";
+import MainHead from "../components/layout/MainHead.astro";
+
+interface Props {
+    title?: string | undefined;
+    description?: string | undefined;
+}
+
+const { title, description } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<MainHead title={title} description={description} />
+	</head>
+	<body>
+		<DotPatternBackground />
+
+		<div class="flex flex-col relative z-10 w-full min-h-screen">
+			<Header />
+			<slot />
+			<Footer />
+		</div>
+
+		<script>
+			// Add "loaded" class once the document has completely loaded.
+			addEventListener("load", () =>
+				document.documentElement.classList.add("loaded"),
+			);
+		</script>
+	</body>
+</html>

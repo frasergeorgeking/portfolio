@@ -1,0 +1,105 @@
+---
+import Badge from "@/components/ui/badges/Badge.astro";
+import BentoCardBase from "@/components/ui/bento/BentoCardBase.astro";
+import BentoCardHero from "@/components/ui/bento/BentoCardHero.astro";
+import BentoCardTechStack from "@/components/ui/bento/BentoCardTechStack.astro";
+import BentoCardTimeline from "@/components/ui/bento/BentoCardTimeline.astro";
+import CTAButton from "@/components/ui/buttons/CTAButton.astro";
+import LazyLanyard from "@/components/ui/lanyard/LazyLanyard.astro";
+import Timeline from "@/components/ui/Timeline.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const careerTimeline = [
+    {
+        title: "Games Global\n(Switch Studios)",
+        subtitle: "L2 Client Developer",
+        date: "Jul 2022 - Dec 2025",
+    },
+    {
+        title: "Games Global\n(Switch Studios)",
+        subtitle: "L1 Client Developer",
+        date: "May 2021 - Jul 2022",
+    },
+    {
+        title: "University of Suffolk",
+        subtitle: "BA (Hons) Computer Games Design",
+        date: "Sept 2017 - Oct 2020",
+    },
+];
+---
+
+<BaseLayout>
+	<div class="flex justify-center w-full">
+		<div
+			class="grid auto-rows-min grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-3 lg:gap-3 max-w-7xl p-4 sm:p-6 lg:p-8"
+		>
+			<BentoCardHero
+				class="col-span-1 sm:col-span-3 lg:col-span-3 lg:row-span-3"
+			>
+				<div slot="header" class="flex flex-col gap-1">
+					<p class="text-neutral-300">Hi, I'm Fraser.</p>
+					<div class="flex items-center gap-2">
+						<div
+							class="w-2 h-2 bg-green-500 rounded-full animate-pulse"
+						>
+						</div>
+						<span class="text-sm text-neutral-400">
+							Available for work 👀
+						</span>
+					</div>
+				</div>
+
+				<div slot="title">
+					<h1
+						class="text-4xl font-medium text-neutral-300 leading-tight"
+					>
+						Senior game developer crafting interactive
+						player-focused experiences; collaborative, design
+						literate, delivery focused.
+					</h1>
+				</div>
+
+				<div slot="actions">
+					<CTAButton
+						href="https://github.com/frasergeorgeking"
+						icon="arrow-right"
+						label="GitHub"
+					/>
+					<CTAButton
+						href="https://www.linkedin.com/in/frasergeorgeking"
+						icon="arrow-right"
+						label="LinkedIn"
+					/>
+				</div>
+			</BentoCardHero>
+
+			<BentoCardBase
+				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-1 sm:min-h-[350px]"
+			>
+				<LazyLanyard />
+			</BentoCardBase>
+			<BentoCardTimeline
+				name="Experience"
+				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-3"
+			>
+				<Timeline entries={careerTimeline} />
+			</BentoCardTimeline>
+
+			<BentoCardTechStack
+				name="Tech Stack"
+				class="col-span-1 sm:col-span-1 lg:col-span-1 lg:row-span-2"
+			>
+				<div class="flex flex-wrap gap-2">
+					<Badge label="TypeScript" icon="typescript-logo" />
+					<Badge label="Vite" icon="vite-logo" />
+					<Badge label="PixiJS" icon="pixi-js-logo" />
+					<Badge label="GSAP" icon="gsap-logo" />
+					<Badge label="C#" icon="csharp-logo" />
+					<Badge label=".NET Core" icon="dotnet-core-logo" />
+					<Badge label="GitHub" icon="github-logo" />
+					<Badge label="Docker" icon="docker-logo" />
+				</div>
+			</BentoCardTechStack>
+		</div>
+	</div>
+</BaseLayout>

@@ -1,0 +1,18 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer
+	class="flex flex-col gap-12 mt-auto px-8 py-12 lg:flex-row lg:justify-center lg:px-20 lg:py-10 text-center text-[var(--gray-400)] text-sm"
+>
+	<div class="flex flex-col gap-2 lg:flex-row lg:gap-4 lg:flex-wrap">
+		<p>
+			Designed & developed in Suffolk with grit, splendour and <a
+				href="https://astro.build/"
+				class="text-[var(--accent-light)] underline decoration-transparent underline-offset-[0.25em] transition-[text-decoration-color] duration-200 hover:decoration-current focus:decoration-current"
+				>Astro 🚀</a
+			>
+		</p>
+		<p>&copy; {currentYear} Fraser King</p>
+	</div>
+</footer>
