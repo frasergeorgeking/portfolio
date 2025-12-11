@@ -1,0 +1,33 @@
+---
+import { IconPaths } from "@/components/shared/IconPaths";
+
+interface Props {
+    label: string;
+    icon?: keyof typeof IconPaths;
+    class?: string;
+}
+
+const { label, icon, class: className } = Astro.props;
+---
+
+<span
+    class:list={[
+        "inline-flex items-center px-2.5 py-0.5 rounded-full bg-neutral-800/50 text-neutral-300 font-medium text-xs transition-all duration-200 border border-neutral-700/40 gap-1",
+        className,
+    ]}
+>
+    {
+        icon && (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 256 256"
+                class="w-3 h-3"
+                fill="currentColor"
+                stroke="currentColor"
+                aria-hidden="true"
+                set:html={IconPaths[icon]}
+            />
+        )
+    }
+    {label}
+</span>

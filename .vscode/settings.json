@@ -1,0 +1,18 @@
+{
+	"css.customData": [".vscode/tailwind.json"],
+	"editor.formatOnSave": true,
+	"[javascript][javascriptreact][typescript][typescriptreact][json]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[astro]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[yaml][github-actions-workflow]": {
+		"editor.tabSize": 2,
+		"editor.insertSpaces": true,
+		"editor.autoIndent": "advanced"
+	},
+	"editor.codeActionsOnSave": {
+		"quickfix.biome.nursery.organizeImports": "explicit"
+	}
+}
