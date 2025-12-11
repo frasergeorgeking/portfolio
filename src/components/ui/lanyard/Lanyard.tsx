@@ -238,10 +238,10 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	useEffect(() => {
 		if (hovered) {
 			document.body.style.cursor = dragged ? "grabbing" : "grab";
-			return () => {
-				document.body.style.cursor = "auto";
-			};
 		}
+		return () => {
+			document.body.style.cursor = "auto";
+		};
 	}, [hovered, dragged]);
 
 	useFrame((state, delta) => {
