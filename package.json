@@ -2,6 +2,14 @@
 	"name": "portfolio",
 	"type": "module",
 	"version": "0.0.1",
+	"description": "Fraser King's personal portfolio - Modern Astro site with 3D interactive elements",
+	"author": "Fraser King",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/frasergeorgeking/portfolio.git"
+	},
+	"homepage": "https://fraserk.dev",
 	"scripts": {
 		"dev": "astro dev --host",
 		"build": "astro build",
