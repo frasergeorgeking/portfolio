@@ -6,7 +6,7 @@ The coolest part of the site is undoubtedly the [lanyard component](./src/compon
 
 ## 🚀 Tech Stack
 
-The site is built with Astro primarily for it's server-first approach. The site is incredibly performant to load and streams in interactive React components, such as the lanyard and background, asynchronously.
+The site is built with Astro primarily for its server-first approach. The site is performant to load and streams in interactive React components, such as the lanyard and background, asynchronously.
 
 - **[Astro](https://astro.build/)** - Static site generator
 - **[React](https://react.dev/)** - Interactive components
@@ -38,3 +38,13 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm lint`               | Run Biome linter with auto-fix                              |
 | `pnpm format`             | Run Biome formatter with auto-fix                           |
 | `pnpm release`            | Create automated release with semantic-release              |
+
+## 📝 Contributing
+
+This is my personal portfolio website. While the code is open source under the MIT License, **I am not accepting pull requests or issues** for this project. Any PRs or issues opened will be closed immediately.
+
+## 📄 License
+
+MIT License - see [LICENSE](./LICENSE) file for details.
+
+Copyright (c) 2025 Fraser King
