@@ -1,3 +1,13 @@
+# [1.2.0](https://github.com/frasergeorgeking/portfolio/compare/v1.1.0...v1.2.0) (2025-12-12)
+
+
+### Features
+
+* add astro check to npm scripts & ci ([1a41ddd](https://github.com/frasergeorgeking/portfolio/commit/1a41dddf2b86a34472dabdf6ad624ae290027a68))
+* add conventional commits validation to pr-checks ci ([bd336ca](https://github.com/frasergeorgeking/portfolio/commit/bd336ca2d415077c6b1f94d6a4bd933ae3a2ae3a))
+* add dependabot configuration for npm and GitHub Actions ([5e3bf22](https://github.com/frasergeorgeking/portfolio/commit/5e3bf22c87ef4af3ed6cd513e1b380732f61d67c))
+* implement ci for sitespeed performance testing ([44ab63a](https://github.com/frasergeorgeking/portfolio/commit/44ab63a9fc7ea91f5caa9428675620f16092c925))
+
 # [1.1.0](https://github.com/frasergeorgeking/portfolio/compare/v1.0.0...v1.1.0) (2025-12-12)
 
 
