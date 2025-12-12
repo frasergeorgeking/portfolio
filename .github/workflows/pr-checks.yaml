@@ -43,7 +43,7 @@ jobs:
 
       # Upload the build artifacts for use in other jobs.
       - name: Upload build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: dist
           path: dist/
