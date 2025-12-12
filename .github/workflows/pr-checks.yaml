@@ -5,8 +5,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
-  # This is pretty simple CI, and it's cheaper to roll all steps into a single job.
+  # Roll linting, formatting, and build into a single job as it's cheaper in CI minutes.
   lint-format-build:
     runs-on: ubuntu-latest
 
@@ -36,3 +40,20 @@ jobs:
 
       - name: Build project
         run: pnpm run build
+
+      # Upload the build artifacts for use in other jobs.
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  performance:
+    needs: lint-format-build
+    uses: ./.github/workflows/performance-test.yaml
+    with:
+      base-url: "http://localhost:4321"
+      connectivity: "native"
+      artifact-name: "pr-sitespeed-results"
+      comment-pr: true

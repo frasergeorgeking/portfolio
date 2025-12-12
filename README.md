@@ -17,8 +17,8 @@ The site is built with Astro primarily for it's server-first approach. The site 
 - **[Biome](https://biomejs.dev/)** - Linting and formatting
 
 ## 🔄 CI/CD
-
-- **PR Checks** - Runs Biome linting/formatting checks and validates the project builds on all pull requests to `main`
+- **PR Checks** - Runs Biome linting/formatting checks, validates commit messages with commitlint, validates the project builds, and performs performance testing with sitespeed.io on all pull requests to `main`. Performance budgets gate merges if regressions are detected.
+- **Production Performance** - Manual workflow to test live site performance with 4G throttling using sitespeed.io. Results are stored as artifacts indefinitely.
 - **Release** - Automatically creates semantic releases on pushes to `main` branch
 
 ## 🧞 Commands

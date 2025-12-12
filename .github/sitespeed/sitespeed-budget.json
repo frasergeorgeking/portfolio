@@ -1,0 +1,21 @@
+{
+	"budget": {
+		"timings": {
+			"firstPaint": 450,
+			"fullyLoaded": 10000,
+			"pageLoadTime": 450,
+			"firstContentfulPaint": 450,
+			"largestContentfulPaint": 450
+		},
+		"requests": {
+			"total": 50
+		},
+		"transferSize": {
+			"total": 1500000
+		},
+		"score": {
+			"performance": 70,
+			"bestpractice": 80
+		}
+	}
+}
