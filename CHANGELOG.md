@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/frasergeorgeking/portfolio/compare/v1.2.0...v1.3.0) (2025-12-12)
+
+
+### Features
+
+* add MIT License and update README with contributing guidelines ([73f6512](https://github.com/frasergeorgeking/portfolio/commit/73f6512a0285977b91542bce476fc14d1341a29e))
+
 # [1.2.0](https://github.com/frasergeorgeking/portfolio/compare/v1.1.0...v1.2.0) (2025-12-12)
 
 
