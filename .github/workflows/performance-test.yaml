@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download build artifact (if testing localhost)
         if: contains(inputs.base-url, 'localhost')
