@@ -5,13 +5,20 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
+  # Roll linting, formatting, and build into a single job as it's cheaper in CI minutes.
   lint-format-build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -25,8 +32,28 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run Biome checks
+      - name: Validate conventional commits
+        run: pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+      - name: Run Biome & Astro checks
         run: pnpm run check:ci
 
       - name: Build project
         run: pnpm run build
+
+      # Upload the build artifacts for use in other jobs.
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  performance:
+    needs: lint-format-build
+    uses: ./.github/workflows/performance-test.yaml
+    with:
+      base-url: "http://localhost:4321"
+      connectivity: "native"
+      artifact-name: "pr-sitespeed-results"
+      comment-pr: true

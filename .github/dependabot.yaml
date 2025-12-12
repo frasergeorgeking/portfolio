@@ -1,0 +1,49 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+
+    open-pull-requests-limit: 15
+
+    rebase-strategy: "auto"
+
+    groups:
+      astro-ecosystem:
+        patterns:
+          - "astro"
+          - "@astrojs/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      other-updates:
+        update-types:
+          - "minor"
+          - "patch"
+        exclude-patterns:
+          - "astro"
+          - "@astrojs/*"
+
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+
+    labels:
+      - "dependencies"
+
+    assignees:
+      - "frasergeorgeking"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "github-actions"

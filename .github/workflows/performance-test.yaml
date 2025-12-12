@@ -1,0 +1,227 @@
+name: Performance Test
+
+on:
+  workflow_call:
+    inputs:
+      base-url:
+        description: "Base URL to test (e.g., http://localhost:4321 or https://fraserk.dev)"
+        required: true
+        type: string
+      connectivity:
+        description: "Connection profile (native, 4g, 3g, cable)"
+        required: false
+        type: string
+        default: "native"
+      artifact-name:
+        description: "Name for the artifacts"
+        required: false
+        type: string
+        default: "sitespeed-results"
+      comment-pr:
+        description: "Whether to comment on PR"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  performance:
+    runs-on: ubuntu-latest
+
+    env:
+      SITESPEED_VERSION: "38.6.0"
+      SITESPEED_BROWSER: "chrome"
+      SITESPEED_ITERATIONS: "3"
+      SITESPEED_CONNECTIVITY: ${{ inputs.connectivity }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifact (if testing localhost)
+        if: contains(inputs.base-url, 'localhost')
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Pull sitespeed.io image
+        run: docker pull sitespeedio/sitespeed.io:${{ env.SITESPEED_VERSION }}
+
+      - name: Setup pnpm (if testing localhost)
+        if: contains(inputs.base-url, 'localhost')
+        uses: pnpm/action-setup@v4
+
+      - name: Setup node (if testing localhost)
+        if: contains(inputs.base-url, 'localhost')
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install serve (if testing localhost)
+        if: contains(inputs.base-url, 'localhost')
+        run: pnpm add -D serve
+
+      - name: Serve built site (if testing localhost)
+        if: contains(inputs.base-url, 'localhost')
+        run: |
+          npx serve dist -l 4321 &
+          # Wait for the server to be ready
+          for i in {1..30}; do
+            if curl -sSf http://localhost:4321 > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Waiting for server to be ready... ($i/30)"
+            sleep 1
+          done
+          if ! curl -sSf http://localhost:4321 > /dev/null; then
+            echo "Server did not start in time." >&2
+            exit 1
+          fi
+
+      - name: Prepare URLs for testing
+        id: prepare-urls
+        env:
+          BASE_URL: ${{ inputs.base-url }}
+        run: |
+          PATHS=$(cat .github/sitespeed/sitespeed-urls.txt)
+          URLS=()
+          while IFS= read -r path; do
+            path=$(echo "$path" | xargs)
+            if [ -n "$path" ]; then
+              if [[ "$path" == http* ]]; then
+                URLS+=("$path")
+              else
+                URLS+=("${BASE_URL}${path}")
+              fi
+            fi
+          done <<< "$PATHS"
+          echo "urls=${URLS[*]}" >> $GITHUB_OUTPUT
+
+      - name: Run sitespeed
+        id: sitespeed
+        run: |
+          docker run --rm -v "$(pwd):/sitespeed.io" --network="host" \
+            sitespeedio/sitespeed.io:${{ env.SITESPEED_VERSION }} \
+            --budget.configPath /sitespeed.io/.github/sitespeed/sitespeed-budget.json \
+            --budget.output json \
+            --browser ${{ env.SITESPEED_BROWSER }} \
+            --browsertime.iterations ${{ env.SITESPEED_ITERATIONS }} \
+            --browsertime.connectivity.profile ${{ env.SITESPEED_CONNECTIVITY }} \
+            --outputFolder /sitespeed.io/sitespeed-result \
+            ${{ steps.prepare-urls.outputs.urls }}
+
+      - name: Upload sitespeed results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}-${{ github.run_number }}
+          path: sitespeed-result/
+          retention-days: ${{ inputs.comment-pr && '30' || '0' }}
+
+      - name: Comment PR with results
+        if: always() && inputs.comment-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            try {
+              // Check if step passed or failed
+              const conclusion = '${{ steps.sitespeed.outcome }}' || 'success';
+              const passed = conclusion === 'success';
+
+              const summaryPath = path.join('sitespeed-result', 'index.html');
+              const budgetPath = path.join('sitespeed-result', 'budgetResult.json');
+
+              let comment = `## 📊 Performance Test Results\n\n`;
+              comment += passed
+                ? '✅ **All performance budgets passed**\n\n'
+                : '❌ **Performance budget violations detected**\n\n';
+
+              if (fs.existsSync(summaryPath)) {
+                // Try to read budget results if available
+                if (fs.existsSync(budgetPath)) {
+                  const budgetData = JSON.parse(fs.readFileSync(budgetPath, 'utf8'));
+
+                  // Count working and failing tests
+                  let workingCount = 0;
+                  let failingCount = 0;
+
+                  if (budgetData.working) {
+                    for (const url in budgetData.working) {
+                      workingCount += budgetData.working[url].length;
+                    }
+                  }
+
+                  if (budgetData.failing) {
+                    for (const url in budgetData.failing) {
+                      failingCount += budgetData.failing[url].length;
+                    }
+                  }
+
+                  comment += '### Budget Summary\n';
+                  comment += `- ✅ Passing: ${workingCount}\n`;
+                  comment += `- ❌ Failing: ${failingCount}\n`;
+
+                  // List failing metrics by URL
+                  if (failingCount > 0 && budgetData.failing) {
+                    comment += '\n### Failed Metrics\n';
+
+                    for (const [url, metrics] of Object.entries(budgetData.failing)) {
+                      const urlPath = new URL(url).pathname || '/';
+                      comment += `\n**${urlPath}**\n\n`;
+                      comment += '| Metric | Actual | Limit |\n';
+                      comment += '|--------|--------|-------|\n';
+
+                      for (const metric of metrics) {
+                        comment += `| ${metric.metric} | ${metric.friendlyValue} | ${metric.friendlyLimit} |\n`;
+                      }
+                    }
+                  }
+                  comment += '\n';
+
+                  // List all tested pages
+                  const testedUrls = new Set();
+                  if (budgetData.working) {
+                    Object.keys(budgetData.working).forEach(url => testedUrls.add(url));
+                  }
+                  if (budgetData.failing) {
+                    Object.keys(budgetData.failing).forEach(url => testedUrls.add(url));
+                  }
+
+                  if (testedUrls.size > 0) {
+                    comment += '### Tested Pages\n';
+                    for (const url of testedUrls) {
+                      const urlPath = new URL(url).pathname || '/';
+                      comment += `- ${urlPath}\n`;
+                    }
+                    comment += '\n';
+                  }
+                }
+
+                comment += '### Test Configuration\n';
+                comment += `- **Base URL**: ${{ inputs.base-url }}\n`;
+                comment += `- **Iterations**: ${{ env.SITESPEED_ITERATIONS }}\n`;
+                comment += `- **Browser**: ${{ env.SITESPEED_BROWSER }}\n`;
+                comment += `- **Connection**: ${{ env.SITESPEED_CONNECTIVITY }}\n`;
+                comment += `- **Full Report**: [View Artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n`;
+              } else {
+                comment += '⚠️ Performance results not found.\n';
+              }
+
+              if (context.issue && context.issue.number) {
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: comment
+                });
+              } else {
+                console.warn('context.issue or context.issue.number is undefined. Skipping PR comment.');
+              }
+            } catch (error) {
+              console.error('Error posting comment:', error);
+            }

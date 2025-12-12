@@ -1,0 +1,19 @@
+name: Production Performance Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      base-url:
+        description: "Base URL to test"
+        required: false
+        type: string
+        default: "https://fraserk.dev"
+
+jobs:
+  test-production:
+    uses: ./.github/workflows/performance-test.yaml
+    with:
+      base-url: ${{ inputs.base-url || 'https://fraserk.dev' }}
+      connectivity: "4g"
+      artifact-name: "production-sitespeed-results"
+      comment-pr: false
