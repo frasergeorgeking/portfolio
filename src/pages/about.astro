@@ -1,0 +1,190 @@
+---
+import { Image } from "astro:assets";
+import BentoCardBase from "@/components/ui/bento/BentoCardBase.astro";
+import stylised_laptop from "@/images/stylised_laptop.png";
+import stylised_v60 from "@/images/stylised_v60.png";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+    title="Fraser King - About Me"
+    description="Learn more about Fraser King"
+>
+    <div class="flex justify-center w-full">
+        <div
+            class="grid auto-rows-min grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-3 lg:gap-3 max-w-7xl p-4 sm:p-6 lg:p-8"
+        >
+            <!-- Hero Introduction -->
+            <BentoCardBase class="col-span-1 sm:col-span-3 lg:col-span-5">
+                <div class="flex flex-col gap-3 p-6 sm:p-8">
+                    <p class="text-neutral-400 text-sm">About me</p>
+                    <h1
+                        class="text-2xl font-medium text-neutral-300 leading-tig ht"
+                    >
+                        Gamedev, indie designer and <span
+                            class="shake-text inline-block cursor-pointer text-[var(--accent-light)] font-semibold"
+                            >screen-shake sommelier</span
+                        >.
+                    </h1>
+                </div>
+            </BentoCardBase>
+
+            <!-- Biography -->
+            <BentoCardBase class="col-span-1 sm:col-span-3 lg:col-span-5">
+                <div class="flex flex-col md:flex-row gap-8 p-6 sm:p-8">
+                    <div class="flex-shrink-0">
+                        <Image
+                            src={stylised_laptop}
+                            alt="Stylised render of Fraser coding on a laptop"
+                            loading="eager"
+                            class="rounded-md object-cover w-full md:w-64"
+                        />
+                    </div>
+                    <div class="flex flex-col gap-6 flex-1">
+                        <div class="flex flex-col gap-4">
+                            <h2 class="text-xl font-medium text-neutral-300">
+                                The short version
+                            </h2>
+                            <p class="text-neutral-400 leading-relaxed">
+                                My start as a game developer began as a student
+                                at the University of Suffolk. I studied Computer
+                                Games Design and fell in love with emotive
+                                design, behavioural psychology and procedural
+                                content generation. When our programmer pool
+                                thinned out, I taught myself to code, starting
+                                with Unreal Engine Blueprints and then Unity C#,
+                                and the craft clicked. In my final year, I was
+                                the solo programmer on our group project, a
+                                top-down twin-stick shooter that explored using
+                                sound as a variable-reward mechanic. I also
+                                open-sourced a <a
+                                    href="https://github.com/frasergeorgeking/UE4_BP_MazeGen_MIT"
+                                    class="text-[var(--accent-light)] underline decoration-transparent underline-offset-[0.25em] transition-[text-decoration-color] duration-200 hover:decoration-current focus:decoration-current"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >UE4 Maze Generator</a
+                                >, as well as my dissertation - a <a
+                                    href="https://github.com/frasergeorgeking/UE4_MissionGen_MIT"
+                                    class="text-[var(--accent-light)] underline decoration-transparent underline-offset-[0.25em] transition-[text-decoration-color] duration-200 hover:decoration-current focus:decoration-current"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >UE4 mission generator using generative
+                                    grammar</a
+                                >.
+                            </p>
+                            <p class="text-neutral-400 leading-relaxed">
+                                Since graduating university, I've built HTML5
+                                casino games at Switch Studios (a Games Global
+                                studio), leading front-end delivery in
+                                TypeScript with PixiJS and GSAP, and
+                                implementing back-end services in C#/.NET Core.
+                                I've led titles like <i
+                                    >Immortal Romance Roulette</i
+                                >,
+                                <i>Runaway Chicken</i> and <i
+                                    >Classic Blackjack Poker Side Bets</i
+                                >, while mentoring juniors, shaping hiring and
+                                keeping one foot in indie development with the
+                                odd game jam.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </BentoCardBase>
+
+            <!-- Beyond the code -->
+            <BentoCardBase class="col-span-1 sm:col-span-3 lg:col-span-5">
+                <div class="flex flex-col md:flex-row-reverse gap-8 p-6 sm:p-8">
+                    <div class="flex-shrink-0">
+                        <Image
+                            src={stylised_v60}
+                            alt="Stylised render of Fraser brewing a V60 coffee"
+                            loading="eager"
+                            class="rounded-md object-cover w-full md:w-64"
+                        />
+                    </div>
+                    <div class="flex flex-col gap-6 flex-1">
+                        <div class="flex flex-col gap-4">
+                            <h2 class="text-xl font-medium text-neutral-300">
+                                Beyond the code
+                            </h2>
+                            <p class="text-neutral-400 leading-relaxed">
+                                I'm a speciality coffee enthusiast who loves
+                                dialling in espresso and experimenting with
+                                filter brews (it's pretty hard to beat <a
+                                    href="https://www.youtube.com/watch?v=1oB1oDrDkHM"
+                                    class="text-[var(--accent-light)] underline decoration-transparent underline-offset-[0.25em] transition-[text-decoration-color] duration-200 hover:decoration-current focus:decoration-current"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >James Hoffman's one-cup V60 recipe</a
+                                >)!
+                            </p>
+                            <p class="text-neutral-400 leading-relaxed">
+                                When I'm not building games, I'm playing them -
+                                from small budget indies to large AAA releases.
+                                In the last year alone, I've played enough
+                                <i>Balatro</i> to start seeing <a
+                                    href="https://balatrogame.fandom.com/wiki/Blueprint"
+                                    class="text-[var(--accent-light)] underline decoration-transparent underline-offset-[0.25em] transition-[text-decoration-color] duration-200 hover:decoration-current focus:decoration-current"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >Blueprint Jokers</a
+                                > when in my sleep.
+                            </p>
+                            <p class="text-neutral-400 leading-relaxed">
+                                Lastly, if my commitment is ever in doubt, I've
+                                backed Arsenal for decades. I survived Squillaci
+                                and Djourou as starting centre-backs, no
+                                challenge is insurmountable!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </BentoCardBase>
+        </div>
+    </div>
+
+    <style>
+        @keyframes shake {
+            0% {
+                transform: translate(1px, 1px) rotate(0deg);
+            }
+            10% {
+                transform: translate(-1px, -2px) rotate(-1deg);
+            }
+            20% {
+                transform: translate(-3px, 0px) rotate(1deg);
+            }
+            30% {
+                transform: translate(3px, 2px) rotate(0deg);
+            }
+            40% {
+                transform: translate(1px, -1px) rotate(1deg);
+            }
+            50% {
+                transform: translate(-1px, 2px) rotate(-1deg);
+            }
+            60% {
+                transform: translate(-3px, 1px) rotate(0deg);
+            }
+            70% {
+                transform: translate(3px, 1px) rotate(-1deg);
+            }
+            80% {
+                transform: translate(-1px, -1px) rotate(1deg);
+            }
+            90% {
+                transform: translate(1px, 2px) rotate(0deg);
+            }
+            100% {
+                transform: translate(1px, -2px) rotate(-1deg);
+            }
+        }
+
+        .shake-text:hover,
+        .shake-text:active {
+            animation: shake 0.2s;
+            animation-iteration-count: infinite;
+        }
+    </style>
+</BaseLayout>
