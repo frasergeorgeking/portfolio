@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/frasergeorgeking/portfolio/compare/v1.3.0...v1.4.0) (2025-12-15)
+
+
+### Features
+
+* implement about page ([5f496a2](https://github.com/frasergeorgeking/portfolio/commit/5f496a2da3a1e4c945f5e2e708fa950ee9e87c58))
+
 # [1.3.0](https://github.com/frasergeorgeking/portfolio/compare/v1.2.0...v1.3.0) (2025-12-12)
 
 
