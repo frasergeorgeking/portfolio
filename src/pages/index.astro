@@ -59,17 +59,25 @@ const careerTimeline = [
 					</h1>
 				</div>
 
-				<div slot="actions">
+				<div slot="actions" class="flex flex-wrap justify-between gap-2">
 					<CTAButton
-						href="https://github.com/frasergeorgeking"
+						href="/about"
 						icon="arrow-right"
-						label="GitHub"
+						label="About me"
+						target="_self"
 					/>
-					<CTAButton
-						href="https://www.linkedin.com/in/frasergeorgeking"
-						icon="arrow-right"
-						label="LinkedIn"
-					/>
+					<div class="flex gap-2 flex-wrap justify-end">
+						<CTAButton
+							href="https://github.com/frasergeorgeking"
+							icon="github-logo"
+							label="GitHub"
+						/>
+						<CTAButton
+							href="https://www.linkedin.com/in/frasergeorgeking"
+							icon="linkedin-logo"
+							label="LinkedIn"
+						/>
+					</div>
 				</div>
 			</BentoCardHero>
 
