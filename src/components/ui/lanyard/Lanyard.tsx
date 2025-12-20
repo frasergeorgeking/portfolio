@@ -17,6 +17,7 @@ import {
 	useRopeJoint,
 	useSphericalJoint,
 } from "@react-three/rapier";
+import { z } from "astro/zod";
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -126,7 +127,8 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		linearDamping: 4,
 	} as const;
 
-	const { nodes, materials } = useGLTF(cardGLB) as unknown as CardGLTF;
+	const gltfData = useGLTF(cardGLB);
+	const { nodes, materials } = CardGLTFSchema.parse(gltfData);
 
 	const lanyardUrl = lanyardImg.src;
 	const texture = useTexture(lanyardUrl);
@@ -413,14 +415,17 @@ function useRigidBodyRef(): React.RefObject<RapierRigidBody> {
 	return useRef<RapierRigidBody>(null) as React.RefObject<RapierRigidBody>;
 }
 
-type CardGLTF = {
-	nodes: {
-		card: THREE.Mesh;
-		clip: THREE.Mesh;
-		clamp: THREE.Mesh;
-	};
-	materials: {
-		base: THREE.MeshStandardMaterial;
-		metal: THREE.Material;
-	};
-};
+/**
+ * Zod schema for validating the card GLTF structure.
+ */
+const CardGLTFSchema = z.object({
+	nodes: z.object({
+		card: z.instanceof(THREE.Mesh),
+		clip: z.instanceof(THREE.Mesh),
+		clamp: z.instanceof(THREE.Mesh),
+	}),
+	materials: z.object({
+		base: z.instanceof(THREE.MeshStandardMaterial),
+		metal: z.instanceof(THREE.Material),
+	}),
+});
