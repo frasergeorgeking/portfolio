@@ -101,6 +101,23 @@ interface BandProps {
 	minSpeed?: number;
 }
 
+/**
+ * Helper to manage pointer capture on an event target.
+ */
+function handlePointerCapture(
+	target: EventTarget | null,
+	pointerId: number,
+	action: "set" | "release",
+): void {
+	if (!(target instanceof Element)) return;
+
+	if (action === "set") {
+		target.setPointerCapture(pointerId);
+	} else if (target.hasPointerCapture(pointerId)) {
+		target.releasePointerCapture(pointerId);
+	}
+}
+
 function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	const band = useRef<THREE.Mesh<MeshLineGeometry>>(null);
 	const fixed = useRigidBodyRef();
@@ -108,16 +125,15 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	const j2 = useRigidBodyRef();
 	const j3 = useRigidBodyRef();
 	const card = useRigidBodyRef();
-	const cardMaterial = useRef<THREE.Mesh>(null);
 
 	const lerpedPositions = useRef(
 		new StrictWeakMap<RapierRigidBody, THREE.Vector3>(),
 	);
 
-	const vec = new THREE.Vector3();
-	const ang = new THREE.Vector3();
-	const rot = new THREE.Vector3();
-	const dir = new THREE.Vector3();
+	const vec = useRef(new THREE.Vector3());
+	const ang = useRef(new THREE.Vector3());
+	const rot = useRef(new THREE.Vector3());
+	const dir = useRef(new THREE.Vector3());
 
 	const segmentProps: RigidBodyProps = {
 		type: "dynamic",
@@ -125,7 +141,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		colliders: false,
 		angularDamping: 4,
 		linearDamping: 4,
-	} as const;
+	};
 
 	const gltfData = useGLTF(cardGLB);
 	const { nodes, materials } = CardGLTFSchema.parse(gltfData);
@@ -212,7 +228,6 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		return (): void => controller.abort();
 	}, []);
 
-	// Add global pointer up listener to handle cases where pointer is released outside bounds
 	useEffect(() => {
 		const handlePointerUp = () => {
 			if (dragged) {
@@ -226,7 +241,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		window.addEventListener("pointerup", handlePointerUp, { signal });
 		window.addEventListener("pointercancel", handlePointerUp, { signal });
 
-		return () => controller.abort();
+		return (): void => controller.abort();
 	}, [dragged]);
 
 	useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
@@ -247,17 +262,21 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	}, [hovered, dragged]);
 
 	useFrame((state, delta) => {
-		if (dragged && typeof dragged !== "boolean") {
-			vec.set(state.pointer.x, state.pointer.y, 0.75).unproject(state.camera);
-			dir.copy(vec).sub(state.camera.position).normalize();
-			vec.add(dir.multiplyScalar(state.camera.position.length()));
+		if (dragged) {
+			vec.current
+				.set(state.pointer.x, state.pointer.y, 0.75)
+				.unproject(state.camera);
+			dir.current.copy(vec.current).sub(state.camera.position).normalize();
+			vec.current.add(
+				dir.current.multiplyScalar(state.camera.position.length()),
+			);
 			for (const ref of [card, j1, j2, j3, fixed]) {
 				ref.current?.wakeUp();
 			}
 			card.current?.setNextKinematicTranslation({
-				x: vec.x - dragged.x,
-				y: vec.y - dragged.y,
-				z: vec.z - dragged.z,
+				x: vec.current.x - dragged.x,
+				y: vec.current.y - dragged.y,
+				z: vec.current.z - dragged.z,
 			});
 		}
 		if (fixed.current) {
@@ -291,10 +310,14 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 			curve.points[2].copy(j1Pos);
 			curve.points[3].copy(fixed.current.translation());
 			band.current?.geometry.setPoints(curve.getPoints(32));
-			ang.copy(card.current.angvel());
-			rot.copy(card.current.rotation());
+			ang.current.copy(card.current.angvel());
+			rot.current.copy(card.current.rotation());
 			card.current.setAngvel(
-				{ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z },
+				{
+					x: ang.current.x,
+					y: ang.current.y - rot.current.y * 0.25,
+					z: ang.current.z,
+				},
 				true,
 			);
 		}
@@ -311,29 +334,14 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	return (
 		<>
 			<group position={[0, 4.3, 0]}>
-				<RigidBody ref={fixed} {...segmentProps} type={"fixed"} />
-				<RigidBody
-					position={[0.5, 0, 0]}
-					ref={j1}
-					{...segmentProps}
-					type={"dynamic"}
-				>
+				<RigidBody ref={fixed} {...segmentProps} type="fixed" />
+				<RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
 					<BallCollider args={[0.1]} />
 				</RigidBody>
-				<RigidBody
-					position={[1, 0, 0]}
-					ref={j2}
-					{...segmentProps}
-					type={"dynamic"}
-				>
+				<RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}>
 					<BallCollider args={[0.1]} />
 				</RigidBody>
-				<RigidBody
-					position={[1.5, 0, 0]}
-					ref={j3}
-					{...segmentProps}
-					type={"dynamic"}
-				>
+				<RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps}>
 					<BallCollider args={[0.1]} />
 				</RigidBody>
 				<RigidBody
@@ -349,38 +357,25 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 						onPointerOver={() => hover(true)}
 						onPointerOut={() => hover(false)}
 						onPointerUp={(e) => {
-							const target = e.nativeEvent.target;
-
-							if (
-								target instanceof Element &&
-								target.hasPointerCapture(e.pointerId)
-							) {
-								target.releasePointerCapture(e.pointerId);
-							}
-
+							handlePointerCapture(
+								e.nativeEvent.target,
+								e.pointerId,
+								"release",
+							);
 							drag(false);
 						}}
 						onPointerDown={(e) => {
 							e.stopPropagation();
-
-							const target = e.nativeEvent.target;
-
-							if (target instanceof Element) {
-								target.setPointerCapture(e.pointerId);
-							}
+							handlePointerCapture(e.nativeEvent.target, e.pointerId, "set");
 
 							drag(
 								new THREE.Vector3()
 									.copy(e.point)
-									.sub(vec.copy(card.current.translation())),
+									.sub(vec.current.copy(card.current.translation())),
 							);
 						}}
 					>
-						<mesh
-							geometry={nodes.card.geometry}
-							material={holoMaterial}
-							ref={cardMaterial}
-						/>
+						<mesh geometry={nodes.card.geometry} material={holoMaterial} />
 						<mesh
 							geometry={nodes.clip.geometry}
 							material={materials.metal}
