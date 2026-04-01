@@ -49,7 +49,7 @@ jobs:
 
       - name: Setup pnpm (if testing localhost)
         if: contains(inputs.base-url, 'localhost')
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
       - name: Setup node (if testing localhost)
         if: contains(inputs.base-url, 'localhost')
