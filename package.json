@@ -44,7 +44,7 @@
 		"three": "^0.183.2"
 	},
 	"devDependencies": {
-		"@astrojs/check": "^0.9.6",
+		"@astrojs/check": "^0.9.8",
 		"@biomejs/biome": "2.4.5",
 		"@commitlint/cli": "^20.4.2",
 		"@commitlint/config-conventional": "^20.4.2",
