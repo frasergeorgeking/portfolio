@@ -1,7 +1,7 @@
 # Copilot Instructions
 
 ## Architecture Overview
-This is an **Astro 5 portfolio site** with React components for interactive 3D elements. Key architectural patterns:
+This is an **Astro 6 portfolio site** with React components for interactive 3D elements. Key architectural patterns:
 
 - **Astro components** (`.astro`) for static/server-rendered UI
 - **React components** (`.tsx`) only for interactive features requiring client-side JS (e.g., `Lanyard.tsx` uses React Three Fiber for 3D physics)
@@ -9,7 +9,7 @@ This is an **Astro 5 portfolio site** with React components for interactive 3D e
 - **Path alias**: Use `@/` for imports from `src/` (e.g., `import { mergeClassNames } from "@/lib/Utils"`)
 
 ## Tech Stack
-- **Astro 5** with React integration (`@astrojs/react`)
+- **Astro 6** with React integration (`@astrojs/react`)
 - **Tailwind CSS 4** via Vite plugin (not PostCSS)
 - **React Three Fiber** + Rapier physics for 3D components
 - **shadcn/ui** configured with `new-york` style (see `components.json`)
