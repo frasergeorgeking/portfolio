@@ -11,5 +11,8 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss(), glsl({ minify: true })],
 		assetsInclude: ["**/*.glb"],
+		optimizeDeps: {
+			exclude: ["@react-three/rapier"],
+		},
 	},
 });
