@@ -45,7 +45,7 @@
 	"devDependencies": {
 		"@astrojs/check": "^0.9.9",
 		"@biomejs/biome": "2.4.15",
-		"@commitlint/cli": "^20.5.0",
+		"@commitlint/cli": "^21.0.1",
 		"@commitlint/config-conventional": "^21.0.1",
 		"@semantic-release/git": "^10.0.1",
 		"@types/three": "^0.184.1",
