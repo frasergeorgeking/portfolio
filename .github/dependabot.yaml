@@ -5,26 +5,16 @@ updates:
     schedule:
       interval: "monthly"
 
-    open-pull-requests-limit: 15
-
+    open-pull-requests-limit: 5
     rebase-strategy: "auto"
 
     groups:
-      astro-ecosystem:
+      all-npm-non-major-dependencies:
         patterns:
-          - "astro"
-          - "@astrojs/*"
+          - "*"
         update-types:
           - "minor"
           - "patch"
-
-      other-updates:
-        update-types:
-          - "minor"
-          - "patch"
-        exclude-patterns:
-          - "astro"
-          - "@astrojs/*"
 
     commit-message:
       prefix: "chore"
