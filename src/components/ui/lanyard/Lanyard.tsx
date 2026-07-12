@@ -100,6 +100,32 @@ interface BandProps {
 	minSpeed?: number;
 }
 
+interface HoloUniforms {
+	holoIntensity: THREE.IUniform<number>;
+	holoLineStrength: THREE.IUniform<number>;
+	holoEdgeStrength: THREE.IUniform<number>;
+	holoArtworkProtection: THREE.IUniform<number>;
+	holoBandScale: THREE.IUniform<number>;
+	holoViewShift: THREE.IUniform<number>;
+	holoLineFrequency: THREE.IUniform<number>;
+	holoSheenStrength: THREE.IUniform<number>;
+	holoDiffractionStrength: THREE.IUniform<number>;
+	holoIdlePresence: THREE.IUniform<number>;
+}
+
+const HOLO_DEFAULTS = {
+	intensity: 1.4,
+	lineStrength: 0.025,
+	edgeStrength: 0.7,
+	artworkProtection: 0.7,
+	bandScale: 1.0,
+	viewShift: 1.0,
+	lineFrequency: 55.0,
+	sheenStrength: 0.1,
+	diffractionStrength: 0.4,
+	idlePresence: 0.1,
+} as const;
+
 function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	const band = useRef<THREE.Mesh<MeshLineGeometry>>(null);
 	const fixed = useRigidBodyRef();
@@ -159,25 +185,24 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 			clearcoatRoughness: 0.05,
 		});
 
-		mat.userData.holoUniforms = {
-			time: { value: 0 },
-			holoIntensity: { value: 1.6 },
-			rainbowScale: { value: 12.0 },
-			sparkleSize: { value: 40.0 },
-			minAngle: { value: 0.1 },
-			maxAngle: { value: 0.85 },
-			baseHoloAmount: { value: 0.02 },
+		const holoUniforms: HoloUniforms = {
+			holoIntensity: { value: HOLO_DEFAULTS.intensity },
+			holoLineStrength: { value: HOLO_DEFAULTS.lineStrength },
+			holoEdgeStrength: { value: HOLO_DEFAULTS.edgeStrength },
+			holoArtworkProtection: { value: HOLO_DEFAULTS.artworkProtection },
+			holoBandScale: { value: HOLO_DEFAULTS.bandScale },
+			holoViewShift: { value: HOLO_DEFAULTS.viewShift },
+			holoLineFrequency: { value: HOLO_DEFAULTS.lineFrequency },
+			holoSheenStrength: { value: HOLO_DEFAULTS.sheenStrength },
+			holoDiffractionStrength: {
+				value: HOLO_DEFAULTS.diffractionStrength,
+			},
+			holoIdlePresence: { value: HOLO_DEFAULTS.idlePresence },
 		};
+		mat.userData.holoUniforms = holoUniforms;
 
 		mat.onBeforeCompile = (shader) => {
-			// Add custom uniforms
-			shader.uniforms.time = mat.userData.holoUniforms.time;
-			shader.uniforms.holoIntensity = mat.userData.holoUniforms.holoIntensity;
-			shader.uniforms.rainbowScale = mat.userData.holoUniforms.rainbowScale;
-			shader.uniforms.sparkleSize = mat.userData.holoUniforms.sparkleSize;
-			shader.uniforms.minAngle = mat.userData.holoUniforms.minAngle;
-			shader.uniforms.maxAngle = mat.userData.holoUniforms.maxAngle;
-			shader.uniforms.baseHoloAmount = mat.userData.holoUniforms.baseHoloAmount;
+			Object.assign(shader.uniforms, holoUniforms);
 
 			// Add holographic functions to fragment shader
 			shader.fragmentShader = shader.fragmentShader.replace(
@@ -295,11 +320,6 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 				{ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z },
 				true,
 			);
-		}
-
-		// Update holographic card effect
-		if (holoMaterial.userData?.holoUniforms) {
-			holoMaterial.userData.holoUniforms.time.value = state.clock.elapsedTime;
 		}
 	});
 
