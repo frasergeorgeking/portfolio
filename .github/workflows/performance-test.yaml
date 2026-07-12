@@ -47,16 +47,22 @@ jobs:
       - name: Pull sitespeed.io image
         run: docker pull sitespeedio/sitespeed.io:${{ env.SITESPEED_VERSION }}
 
-      - name: Setup pnpm (if testing localhost)
-        if: contains(inputs.base-url, 'localhost')
+      - name: Setup pnpm
         uses: pnpm/action-setup@v6
 
-      - name: Setup node (if testing localhost)
-        if: contains(inputs.base-url, 'localhost')
+      - name: Setup node
         uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: "pnpm"
+
+      # Local PR runs reuse the build artifact. Remote runs build the checked-out
+      # revision so route discovery has the same source of truth.
+      - name: Build project for route discovery (if testing remote)
+        if: ${{ !contains(inputs.base-url, 'localhost') }}
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run build
 
       - name: Install serve (if testing localhost)
         if: contains(inputs.base-url, 'localhost')
@@ -82,22 +88,32 @@ jobs:
 
       - name: Prepare URLs for testing
         id: prepare-urls
+        uses: actions/github-script@v9
         env:
           BASE_URL: ${{ inputs.base-url }}
-        run: |
-          PATHS=$(cat .github/sitespeed/sitespeed-urls.txt)
-          URLS=()
-          while IFS= read -r path; do
-            path=$(echo "$path" | xargs)
-            if [ -n "$path" ]; then
-              if [[ "$path" == http* ]]; then
-                URLS+=("$path")
-              else
-                URLS+=("${BASE_URL}${path}")
-              fi
-            fi
-          done <<< "$PATHS"
-          echo "urls=${URLS[*]}" >> $GITHUB_OUTPUT
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const pages = fs.readdirSync('dist', { recursive: true })
+              .filter(file => file.endsWith('.html'))
+              .map(file => file.split(path.sep).join('/'))
+              .sort();
+
+            if (pages.length === 0) {
+              core.setFailed('The build did not contain any HTML pages to test.');
+              return;
+            }
+
+            const routes = pages.map(page => {
+              if (page === 'index.html') return '/';
+              if (page.endsWith('/index.html')) return `/${page.slice(0, -'index.html'.length)}`;
+              return `/${page.slice(0, -'.html'.length)}`;
+            });
+            const urls = routes.map(route => new URL(route, process.env.BASE_URL).toString());
+            core.info(`Testing: ${urls.join(', ')}`);
+            core.setOutput('urls', urls.join(' '));
 
       - name: Run sitespeed
         id: sitespeed
