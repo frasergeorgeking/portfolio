@@ -13,10 +13,7 @@
 		"indentStyle": "tab"
 	},
 	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true
-		}
+		"enabled": true
 	},
 	"javascript": {
 		"formatter": {
@@ -37,6 +34,16 @@
 		}
 	},
 	"overrides": [
+		{
+			"includes": ["public/favicon.svg"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"noSvgWithoutTitle": "off"
+					}
+				}
+			}
+		},
 		{
 			"includes": ["**/*.svelte", "**/*.astro", "**/*.vue"],
 			"linter": {
