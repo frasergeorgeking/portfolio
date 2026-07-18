@@ -1,10 +1,10 @@
-# 🌟 Portfolio
+# Portfolio
 
 A modern, custom-built portfolio site powered by Astro, featuring a bento grid layout, 3D interactive elements, and minimalistic design aesthetics.
 
 The coolest part of the site is undoubtedly the [lanyard component](./src/components/ui/lanyard/Lanyard.tsx) on the landing page. This component is a modified version of that [provided by ReactBits](https://www.reactbits.dev/components/lanyard). The lighting, camera and physics have been tweaked as required, and the card has been completely re-textured in a PBR-workflow with Substance 3D Painter. A funky holographic shader is then deterministically applied based on the angle of card.
 
-## 🚀 Tech Stack
+## Tech Stack
 
 The site is built with Astro primarily for its server-first approach. The site is performant to load and streams in interactive React components, such as the lanyard and background, asynchronously.
 
@@ -16,12 +16,12 @@ The site is built with Astro primarily for its server-first approach. The site i
 - **[React Three Fiber](https://docs.pmnd.rs/react-three-fiber/)** - 3D graphics with physics
 - **[Biome](https://biomejs.dev/)** - Linting and formatting
 
-## 🔄 CI/CD
+## CI/CD
 - **PR Checks** - Runs Biome linting/formatting checks, validates commit messages with commitlint, validates the project builds, and performs performance testing with sitespeed.io on all pull requests to `main`. Performance budgets gate merges if regressions are detected.
 - **Production Performance** - Manual workflow to test live site performance with 4G throttling using sitespeed.io. Results are stored as artifacts indefinitely.
 - **Release** - Automatically creates semantic releases on pushes to `main` branch
 
-## 🧞 Commands
+## Commands
 
 All commands are run from the root of the project, from a terminal:
 
@@ -39,11 +39,11 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm format`             | Run Biome formatter with auto-fix                           |
 | `pnpm release`            | Create automated release with semantic-release              |
 
-## 📝 Contributing
+## Contributing
 
-This is my personal portfolio website. While the code is open source under the MIT License, **I am not accepting pull requests or issues** for this project. Any PRs or issues opened will be closed immediately.
+This is my personal portfolio website. While the code is open source under the MIT License, **I am not accepting pull requests or issues** for this project.
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE](./LICENSE) file for details.
 
