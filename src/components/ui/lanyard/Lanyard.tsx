@@ -6,7 +6,7 @@ import {
 	useGLTF,
 	useTexture,
 } from "@react-three/drei";
-import { Canvas, extend, useFrame } from "@react-three/fiber";
+import { Canvas, extend, useFrame, useThree } from "@react-three/fiber";
 import {
 	BallCollider,
 	CuboidCollider,
@@ -17,32 +17,42 @@ import {
 	useRopeJoint,
 	useSphericalJoint,
 } from "@react-three/rapier";
-import { MeshLineGeometry, MeshLineMaterial } from "meshline";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { MeshLineGeometry } from "meshline";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { GlobalEvents } from "@/events/GlobalEvents";
-import { StrictWeakMap } from "@/lib/StrictWeakMap";
-import { assertNotNullish } from "@/lib/Utils";
+import { calculateCameraDistance } from "./CameraFit";
 import cardGLB from "./card.glb?url";
 import holographicFragment from "./holographic.frag";
 import holographicPostFragment from "./holographic_post.frag";
+import { LanyardMaterial } from "./LanyardMaterial";
 import lanyardImg from "./lanyard.png";
 
-extend({ MeshLineGeometry, MeshLineMaterial });
+extend({ LanyardMaterial, MeshLineGeometry });
 
-interface LanyardProps {
-	position?: [number, number, number];
-	gravity?: [number, number, number];
-	fov?: number;
-	transparent?: boolean;
-}
+const CAMERA_FOV = 8;
+const CAMERA_PADDING = 1.12;
+const CAMERA_BASE_DISTANCE = 24;
+const CAMERA_TARGET: [number, number, number] = [0, 0, 0];
+const SCENE_GRAVITY: [number, number, number] = [0, -40, 0];
 
-export default function Lanyard({
-	position = [0, 0, 24],
-	gravity = [0, -40, 0],
-	fov = 8,
-	transparent = true,
-}: LanyardProps) {
+const ANCHOR_POSITION: [number, number, number] = [0, 4.3, 0] as const;
+const ROPE_SEGMENT_LENGTH = 1;
+const CARD_JOINT_ANCHOR_Y = 1.45;
+const CARD_VISUAL_SCALE = 2.25;
+const CARD_VISUAL_POSITION: [number, number, number] = [0, -1.2, -0.05];
+const BAND_SCREEN_WIDTH = 500;
+
+// Horizontal accessor bounds for the card in card.glb.
+const CARD_MODEL_BOUNDS = {
+	minX: -0.35820895433425903,
+	maxX: 0.35820895433425903,
+} as const;
+
+const CARD_FRAME_WIDTH =
+	(CARD_MODEL_BOUNDS.maxX - CARD_MODEL_BOUNDS.minX) * CARD_VISUAL_SCALE;
+
+export default function Lanyard() {
 	useEffect(() => {
 		window.dispatchEvent(GlobalEvents.LanyardLoaded);
 	}, []);
@@ -50,14 +60,13 @@ export default function Lanyard({
 	return (
 		<div className="relative z-0 w-full h-full flex justify-center items-center transform scale-100 origin-center select-none [-webkit-user-select:none]">
 			<Canvas
-				camera={{ position, fov }}
-				gl={{ alpha: transparent }}
-				onCreated={({ gl }) =>
-					gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)
-				}
+				camera={{ position: [0, 0, CAMERA_BASE_DISTANCE], fov: CAMERA_FOV }}
+				gl={{ alpha: true }}
+				onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), 0)}
 			>
+				<ResponsiveCamera />
 				<ambientLight intensity={0.25} />
-				<Physics gravity={gravity} timeStep={1 / 30}>
+				<Physics gravity={SCENE_GRAVITY} interpolate timeStep={1 / 30}>
 					<Band />
 				</Physics>
 				<Environment>
@@ -95,9 +104,38 @@ export default function Lanyard({
 	);
 }
 
-interface BandProps {
-	maxSpeed?: number;
-	minSpeed?: number;
+function ResponsiveCamera() {
+	const camera = useThree((state) => state.camera);
+	const size = useThree((state) => state.size);
+	const invalidate = useThree((state) => state.invalidate);
+
+	useLayoutEffect(() => {
+		if (!(camera instanceof THREE.PerspectiveCamera)) {
+			return;
+		}
+
+		const distance = calculateCameraDistance({
+			subjectWidth: CARD_FRAME_WIDTH,
+			viewportWidth: size.width,
+			viewportHeight: size.height,
+			verticalFov: CAMERA_FOV,
+			minimumDistance: CAMERA_BASE_DISTANCE,
+			padding: CAMERA_PADDING,
+		});
+
+		if (distance === null) {
+			return;
+		}
+
+		camera.fov = CAMERA_FOV;
+		camera.position.set(CAMERA_TARGET[0], CAMERA_TARGET[1], distance);
+		camera.lookAt(...CAMERA_TARGET);
+		camera.updateProjectionMatrix();
+		camera.updateMatrixWorld();
+		invalidate();
+	}, [camera, invalidate, size]);
+
+	return null;
 }
 
 interface HoloUniforms {
@@ -126,23 +164,24 @@ const HOLO_DEFAULTS = {
 	idlePresence: 0.1,
 } as const;
 
-function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
+function Band() {
 	const band = useRef<THREE.Mesh<MeshLineGeometry>>(null);
 	const fixed = useRigidBodyRef();
 	const j1 = useRigidBodyRef();
 	const j2 = useRigidBodyRef();
 	const j3 = useRigidBodyRef();
 	const card = useRigidBodyRef();
+	const fixedPoint = useRef<THREE.Group>(null);
+	const j1Point = useRef<THREE.Group>(null);
+	const j2Point = useRef<THREE.Group>(null);
+	const j3Point = useRef<THREE.Group>(null);
 	const cardMaterial = useRef<THREE.Mesh>(null);
-
-	const lerpedPositions = useRef(
-		new StrictWeakMap<RapierRigidBody, THREE.Vector3>(),
-	);
+	const canvasSize = useThree((state) => state.size);
 
 	const vec = new THREE.Vector3();
 	const ang = new THREE.Vector3();
 	const rot = new THREE.Vector3();
-	const dir = new THREE.Vector3();
+	const dragPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
 	const segmentProps: RigidBodyProps = {
 		type: "dynamic",
@@ -167,13 +206,6 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	);
 	const [dragged, drag] = useState<false | THREE.Vector3>(false);
 	const [hovered, hover] = useState(false);
-
-	const [isSmall, setIsSmall] = useState<boolean>(() => {
-		if (typeof window !== "undefined") {
-			return window.innerWidth < 1024;
-		}
-		return false;
-	});
 
 	const holoMaterial = useMemo(() => {
 		const mat = new THREE.MeshPhysicalMaterial({
@@ -222,19 +254,6 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		return mat;
 	}, [materials.base.map, materials.base.roughnessMap]);
 
-	useEffect(() => {
-		const handleResize = (): void => {
-			setIsSmall(window.innerWidth < 1024);
-		};
-
-		const controller = new AbortController();
-		const { signal } = controller;
-
-		window.addEventListener("resize", handleResize, { signal });
-
-		return (): void => controller.abort();
-	}, []);
-
 	// Add global pointer up listener to handle cases where pointer is released outside bounds
 	useEffect(() => {
 		const handlePointerUp = () => {
@@ -252,12 +271,12 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		return () => controller.abort();
 	}, [dragged]);
 
-	useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
-	useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
-	useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
+	useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], ROPE_SEGMENT_LENGTH]);
+	useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], ROPE_SEGMENT_LENGTH]);
+	useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], ROPE_SEGMENT_LENGTH]);
 	useSphericalJoint(j3, card, [
 		[0, 0, 0],
-		[0, 1.45, 0],
+		[0, CARD_JOINT_ANCHOR_Y, 0],
 	]);
 
 	useEffect(() => {
@@ -269,50 +288,32 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		};
 	}, [hovered, dragged]);
 
-	useFrame((state, delta) => {
+	useFrame((state) => {
 		if (dragged && typeof dragged !== "boolean") {
-			vec.set(state.pointer.x, state.pointer.y, 0.75).unproject(state.camera);
-			dir.copy(vec).sub(state.camera.position).normalize();
-			vec.add(dir.multiplyScalar(state.camera.position.length()));
-			for (const ref of [card, j1, j2, j3, fixed]) {
-				ref.current?.wakeUp();
-			}
-			card.current?.setNextKinematicTranslation({
-				x: vec.x - dragged.x,
-				y: vec.y - dragged.y,
-				z: vec.z - dragged.z,
-			});
-		}
-		if (fixed.current) {
-			[j1, j2].forEach((ref) => {
-				const body = ref.current;
-				assertNotNullish(body);
-
-				if (!lerpedPositions.current.has(body)) {
-					lerpedPositions.current.set(
-						body,
-						new THREE.Vector3().copy(body.translation()),
-					);
+			state.raycaster.setFromCamera(state.pointer, state.camera);
+			if (state.raycaster.ray.intersectPlane(dragPlane, vec)) {
+				for (const ref of [card, j1, j2, j3, fixed]) {
+					ref.current?.wakeUp();
 				}
+				card.current?.setNextKinematicTranslation({
+					x: vec.x - dragged.x,
+					y: vec.y - dragged.y,
+					z: vec.z - dragged.z,
+				});
+			}
+		}
+		if (
+			fixed.current &&
+			fixedPoint.current &&
+			j1Point.current &&
+			j2Point.current &&
+			j3Point.current
+		) {
+			j3Point.current.getWorldPosition(curve.points[0]);
+			j2Point.current.getWorldPosition(curve.points[1]);
+			j1Point.current.getWorldPosition(curve.points[2]);
+			fixedPoint.current.getWorldPosition(curve.points[3]);
 
-				const lerped = lerpedPositions.current.get(body);
-				const clampedDistance = Math.max(
-					0.1,
-					Math.min(1, lerped.distanceTo(body.translation())),
-				);
-				lerped.lerp(
-					body.translation(),
-					delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
-				);
-			});
-
-			const j1Pos = lerpedPositions.current.get(j1.current);
-			const j2Pos = lerpedPositions.current.get(j2.current);
-
-			curve.points[0].copy(j3.current.translation());
-			curve.points[1].copy(j2Pos);
-			curve.points[2].copy(j1Pos);
-			curve.points[3].copy(fixed.current.translation());
 			band.current?.geometry.setPoints(curve.getPoints(32));
 			ang.copy(card.current.angvel());
 			rot.copy(card.current.rotation());
@@ -328,14 +329,17 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 
 	return (
 		<>
-			<group position={[0, 4.3, 0]}>
-				<RigidBody ref={fixed} {...segmentProps} type={"fixed"} />
+			<group position={ANCHOR_POSITION}>
+				<RigidBody ref={fixed} {...segmentProps} type={"fixed"}>
+					<group ref={fixedPoint} />
+				</RigidBody>
 				<RigidBody
 					position={[0.5, 0, 0]}
 					ref={j1}
 					{...segmentProps}
 					type={"dynamic"}
 				>
+					<group ref={j1Point} />
 					<BallCollider args={[0.1]} />
 				</RigidBody>
 				<RigidBody
@@ -344,6 +348,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 					{...segmentProps}
 					type={"dynamic"}
 				>
+					<group ref={j2Point} />
 					<BallCollider args={[0.1]} />
 				</RigidBody>
 				<RigidBody
@@ -352,6 +357,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 					{...segmentProps}
 					type={"dynamic"}
 				>
+					<group ref={j3Point} />
 					<BallCollider args={[0.1]} />
 				</RigidBody>
 				<RigidBody
@@ -362,8 +368,8 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 				>
 					<CuboidCollider args={[0.8, 1.125, 0.01]} />
 					<group
-						scale={2.25}
-						position={[0, -1.2, -0.05]}
+						scale={CARD_VISUAL_SCALE}
+						position={CARD_VISUAL_POSITION}
 						onPointerOver={() => hover(true)}
 						onPointerOut={() => hover(false)}
 						onPointerUp={(e) => {
@@ -410,14 +416,9 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 			</group>
 			<mesh ref={band}>
 				<meshLineGeometry />
-				<meshLineMaterial
-					color="white"
-					depthTest={false}
-					resolution={isSmall ? [1000, 2000] : [1000, 1000]}
-					useMap
-					map={texture}
-					repeat={[-4, 1]}
-					lineWidth={1}
+				<lanyardMaterial
+					args={[texture, BAND_SCREEN_WIDTH]}
+					resolution={[canvasSize.width, canvasSize.height]}
 				/>
 			</mesh>
 		</>
