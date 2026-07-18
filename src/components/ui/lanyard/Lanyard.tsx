@@ -21,8 +21,6 @@ import { MeshLineGeometry } from "meshline";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { GlobalEvents } from "@/events/GlobalEvents";
-import { StrictWeakMap } from "@/lib/StrictWeakMap";
-import { assertNotNullish } from "@/lib/Utils";
 import { calculateCameraDistance } from "./CameraFit";
 import cardGLB from "./card.glb?url";
 import holographicFragment from "./holographic.frag";
@@ -68,7 +66,7 @@ export default function Lanyard() {
 			>
 				<ResponsiveCamera />
 				<ambientLight intensity={0.25} />
-				<Physics gravity={SCENE_GRAVITY} timeStep={1 / 30}>
+				<Physics gravity={SCENE_GRAVITY} interpolate timeStep={1 / 30}>
 					<Band />
 				</Physics>
 				<Environment>
@@ -140,11 +138,6 @@ function ResponsiveCamera() {
 	return null;
 }
 
-interface BandProps {
-	maxSpeed?: number;
-	minSpeed?: number;
-}
-
 interface HoloUniforms {
 	holoIntensity: THREE.IUniform<number>;
 	holoLineStrength: THREE.IUniform<number>;
@@ -171,19 +164,19 @@ const HOLO_DEFAULTS = {
 	idlePresence: 0.1,
 } as const;
 
-function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
+function Band() {
 	const band = useRef<THREE.Mesh<MeshLineGeometry>>(null);
 	const fixed = useRigidBodyRef();
 	const j1 = useRigidBodyRef();
 	const j2 = useRigidBodyRef();
 	const j3 = useRigidBodyRef();
 	const card = useRigidBodyRef();
+	const fixedPoint = useRef<THREE.Group>(null);
+	const j1Point = useRef<THREE.Group>(null);
+	const j2Point = useRef<THREE.Group>(null);
+	const j3Point = useRef<THREE.Group>(null);
 	const cardMaterial = useRef<THREE.Mesh>(null);
 	const canvasSize = useThree((state) => state.size);
-
-	const lerpedPositions = useRef(
-		new StrictWeakMap<RapierRigidBody, THREE.Vector3>(),
-	);
 
 	const vec = new THREE.Vector3();
 	const ang = new THREE.Vector3();
@@ -295,7 +288,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 		};
 	}, [hovered, dragged]);
 
-	useFrame((state, delta) => {
+	useFrame((state) => {
 		if (dragged && typeof dragged !== "boolean") {
 			state.raycaster.setFromCamera(state.pointer, state.camera);
 			if (state.raycaster.ray.intersectPlane(dragPlane, vec)) {
@@ -309,36 +302,18 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 				});
 			}
 		}
-		if (fixed.current) {
-			[j1, j2].forEach((ref) => {
-				const body = ref.current;
-				assertNotNullish(body);
+		if (
+			fixed.current &&
+			fixedPoint.current &&
+			j1Point.current &&
+			j2Point.current &&
+			j3Point.current
+		) {
+			j3Point.current.getWorldPosition(curve.points[0]);
+			j2Point.current.getWorldPosition(curve.points[1]);
+			j1Point.current.getWorldPosition(curve.points[2]);
+			fixedPoint.current.getWorldPosition(curve.points[3]);
 
-				if (!lerpedPositions.current.has(body)) {
-					lerpedPositions.current.set(
-						body,
-						new THREE.Vector3().copy(body.translation()),
-					);
-				}
-
-				const lerped = lerpedPositions.current.get(body);
-				const clampedDistance = Math.max(
-					0.1,
-					Math.min(1, lerped.distanceTo(body.translation())),
-				);
-				lerped.lerp(
-					body.translation(),
-					delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
-				);
-			});
-
-			const j1Pos = lerpedPositions.current.get(j1.current);
-			const j2Pos = lerpedPositions.current.get(j2.current);
-
-			curve.points[0].copy(j3.current.translation());
-			curve.points[1].copy(j2Pos);
-			curve.points[2].copy(j1Pos);
-			curve.points[3].copy(fixed.current.translation());
 			band.current?.geometry.setPoints(curve.getPoints(32));
 			ang.copy(card.current.angvel());
 			rot.copy(card.current.rotation());
@@ -355,13 +330,16 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 	return (
 		<>
 			<group position={ANCHOR_POSITION}>
-				<RigidBody ref={fixed} {...segmentProps} type={"fixed"} />
+				<RigidBody ref={fixed} {...segmentProps} type={"fixed"}>
+					<group ref={fixedPoint} />
+				</RigidBody>
 				<RigidBody
 					position={[0.5, 0, 0]}
 					ref={j1}
 					{...segmentProps}
 					type={"dynamic"}
 				>
+					<group ref={j1Point} />
 					<BallCollider args={[0.1]} />
 				</RigidBody>
 				<RigidBody
@@ -370,6 +348,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 					{...segmentProps}
 					type={"dynamic"}
 				>
+					<group ref={j2Point} />
 					<BallCollider args={[0.1]} />
 				</RigidBody>
 				<RigidBody
@@ -378,6 +357,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 					{...segmentProps}
 					type={"dynamic"}
 				>
+					<group ref={j3Point} />
 					<BallCollider args={[0.1]} />
 				</RigidBody>
 				<RigidBody
