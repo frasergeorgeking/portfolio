@@ -17,7 +17,7 @@ import {
 	useRopeJoint,
 	useSphericalJoint,
 } from "@react-three/rapier";
-import { MeshLineGeometry, MeshLineMaterial } from "meshline";
+import { MeshLineGeometry } from "meshline";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { GlobalEvents } from "@/events/GlobalEvents";
@@ -27,9 +27,10 @@ import { calculateCameraDistance } from "./CameraFit";
 import cardGLB from "./card.glb?url";
 import holographicFragment from "./holographic.frag";
 import holographicPostFragment from "./holographic_post.frag";
+import { LanyardMaterial } from "./LanyardMaterial";
 import lanyardImg from "./lanyard.png";
 
-extend({ MeshLineGeometry, MeshLineMaterial });
+extend({ LanyardMaterial, MeshLineGeometry });
 
 const CAMERA_FOV = 8;
 const CAMERA_PADDING = 1.12;
@@ -42,6 +43,7 @@ const ROPE_SEGMENT_LENGTH = 1;
 const CARD_JOINT_ANCHOR_Y = 1.45;
 const CARD_VISUAL_SCALE = 2.25;
 const CARD_VISUAL_POSITION: [number, number, number] = [0, -1.2, -0.05];
+const BAND_SCREEN_WIDTH = 500;
 
 // Horizontal accessor bounds for the card in card.glb.
 const CARD_MODEL_BOUNDS = {
@@ -434,14 +436,9 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 			</group>
 			<mesh ref={band}>
 				<meshLineGeometry />
-				<meshLineMaterial
-					color="white"
-					depthTest={false}
+				<lanyardMaterial
+					args={[texture, BAND_SCREEN_WIDTH]}
 					resolution={[canvasSize.width, canvasSize.height]}
-					useMap
-					map={texture}
-					repeat={[-4, 1]}
-					lineWidth={1}
 				/>
 			</mesh>
 		</>
