@@ -6,7 +6,8 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": false,
+		"includes": ["**", "!**/*.astro"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -45,7 +46,7 @@
 			}
 		},
 		{
-			"includes": ["**/*.svelte", "**/*.astro", "**/*.vue"],
+			"includes": ["**/*.svelte", "**/*.vue"],
 			"linter": {
 				"rules": {
 					"style": {
