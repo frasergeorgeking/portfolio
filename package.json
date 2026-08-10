@@ -31,7 +31,7 @@
 		"@tailwindcss/vite": "^4.3.3",
 		"@types/react": "^19.2.18",
 		"@types/react-dom": "^19.2.4",
-		"astro": "^7.1.6",
+		"astro": "^7.2.0",
 		"clsx": "^2.1.1",
 		"meshline": "^3.3.1",
 		"motion": "^12.43.0",
