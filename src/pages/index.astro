@@ -10,26 +10,26 @@ import Timeline from "@/components/ui/Timeline.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
 const careerTimeline = [
-    {
-        title: "Bang Bang Games",
-        subtitle: "Senior Game Developer",
-        date: "Feb 2026 - Present",
-    },
-    {
-        title: "Games Global\n(Switch Studios)",
-        subtitle: "L2 Client Developer",
-        date: "Jul 2022 - Dec 2025",
-    },
-    {
-        title: "Games Global\n(Switch Studios)",
-        subtitle: "L1 Client Developer",
-        date: "May 2021 - Jul 2022",
-    },
-    {
-        title: "University of Suffolk",
-        subtitle: "BA (Hons) Computer Games Design",
-        date: "Sept 2017 - Oct 2020",
-    },
+	{
+		title: "Bang Bang Games",
+		subtitle: "Senior Game Developer",
+		date: "Feb 2026 - Present",
+	},
+	{
+		title: "Games Global\n(Switch Studios)",
+		subtitle: "L2 Client Developer",
+		date: "Jul 2022 - Dec 2025",
+	},
+	{
+		title: "Games Global\n(Switch Studios)",
+		subtitle: "L1 Client Developer",
+		date: "May 2021 - Jul 2022",
+	},
+	{
+		title: "University of Suffolk",
+		subtitle: "BA (Hons) Computer Games Design",
+		date: "Sept 2017 - Oct 2020",
+	},
 ];
 ---
 
@@ -54,17 +54,26 @@ const careerTimeline = [
 					</div>
 				</div>
 
-				<div slot="title">
+				<div slot="title" class="flex flex-col gap-5 lg:mt-2">
 					<h1
-						class="text-4xl font-medium text-neutral-300 leading-tight"
+						class="text-3xl sm:text-4xl font-medium text-neutral-300 leading-tight"
 					>
-						Senior game developer crafting interactive
-						player-focused experiences; collaborative, design
-						literate, delivery focused.
+						Senior game developer crafting interactive,
+						player-focused experiences.
 					</h1>
+
+					<p
+						class="max-w-prose text-sm sm:text-base leading-relaxed text-neutral-400"
+					>
+						Comfortable across the stack, with a focus on front-end
+						development, tooling, and developer experience.
+					</p>
 				</div>
 
-				<div slot="actions" class="flex flex-wrap justify-between gap-2">
+				<div
+					slot="actions"
+					class="flex flex-wrap justify-between gap-2"
+				>
 					<CTAButton
 						href="/about"
 						icon="arrow-right"
