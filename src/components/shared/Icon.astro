@@ -3,10 +3,10 @@ import type { HTMLAttributes } from "astro/types";
 import { IconPaths } from "./IconPaths";
 
 interface Props {
-    icon: keyof typeof IconPaths;
-    color?: string;
-    gradient?: boolean;
-    size?: string;
+	icon: keyof typeof IconPaths;
+	color?: string;
+	gradient?: boolean;
+	size?: string;
 }
 
 const { color = "currentcolor", gradient, icon, size } = Astro.props;
