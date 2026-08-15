@@ -1,0 +1,33 @@
+---
+import { getImage } from "astro:assets";
+import LazyScene from "@/components/ui/loading/LazyScene.astro";
+import GameCaseCanvas from "./GameCaseCanvas";
+import type { GameCaseSkin, GameCaseTextureUrls } from "./types";
+
+interface Props {
+	id: string;
+	skin: GameCaseSkin;
+	class?: string;
+}
+
+const { id, skin, class: className } = Astro.props;
+const skinEntries = Object.entries(skin) as [
+	keyof GameCaseSkin,
+	ImageMetadata,
+][];
+const optimizedEntries = await Promise.all(
+	skinEntries.map(async ([surface, src]) => {
+		const image = await getImage({ src, format: "webp", quality: "high" });
+		return [surface, image.src] as const;
+	}),
+);
+const textureUrls = Object.fromEntries(optimizedEntries) as GameCaseTextureUrls;
+---
+
+<LazyScene
+	id={id}
+	label="Loading game case preview"
+	class:list={["h-full min-h-[300px] w-full", className]}
+>
+	<GameCaseCanvas boundaryId={id} textureUrls={textureUrls} client:visible />
+</LazyScene>
