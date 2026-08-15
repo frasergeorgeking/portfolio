@@ -1,0 +1,112 @@
+---
+interface Props {
+	id: string;
+	label: string;
+	class?: string;
+	contentClass?: string;
+}
+
+const { id, label, class: className, contentClass } = Astro.props;
+---
+
+<lazy-scene
+	id={id}
+	data-state="loading"
+	class:list={["relative block", className]}
+>
+	<div
+		data-loading
+		class="absolute inset-0 z-10 flex flex-col justify-center gap-3 p-4 opacity-0 transition-opacity duration-200 sm:p-6"
+		role="status"
+		aria-live="polite"
+	>
+		<span class="sr-only">{label}</span>
+		<div class="h-4 w-2/5 rounded bg-gray-200 dark:bg-neutral-700"></div>
+		<div class="flex flex-col gap-3">
+			<div class="h-3 w-full rounded bg-gray-200 dark:bg-neutral-700"></div>
+			<div class="h-3 w-11/12 rounded bg-gray-200 dark:bg-neutral-700"></div>
+			<div class="h-3 w-5/6 rounded bg-gray-200 dark:bg-neutral-700"></div>
+			<div class="h-3 w-4/5 rounded bg-gray-200 dark:bg-neutral-700"></div>
+		</div>
+	</div>
+
+	<div
+		data-error
+		class="absolute inset-0 z-10 hidden items-center justify-center p-6 text-center text-sm text-neutral-400"
+		role="alert"
+	>
+		<slot name="error">Unable to load this interactive preview.</slot>
+	</div>
+
+	<div data-content class:list={["invisible h-full w-full", contentClass]}>
+		<slot />
+	</div>
+</lazy-scene>
+
+<script>
+	import {
+		LAZY_SCENE_ERROR_EVENT,
+		LAZY_SCENE_READY_EVENT,
+	} from "./lazySceneEvents";
+
+	class LazySceneElement extends HTMLElement {
+		private loadingTimer?: number;
+
+		private readonly handleReady = () => {
+			this.finishLoading("ready");
+		};
+
+		private readonly handleError = () => {
+			this.finishLoading("error");
+		};
+
+		public connectedCallback() {
+			this.addEventListener(LAZY_SCENE_READY_EVENT, this.handleReady);
+			this.addEventListener(LAZY_SCENE_ERROR_EVENT, this.handleError);
+
+			this.loadingTimer = window.setTimeout(() => {
+				this.querySelector<HTMLElement>("[data-loading]")?.classList.add(
+					"opacity-100",
+					"animate-pulse",
+				);
+			}, 1000);
+		}
+
+		public disconnectedCallback() {
+			this.clearLoadingTimer();
+			this.removeEventListener(LAZY_SCENE_READY_EVENT, this.handleReady);
+			this.removeEventListener(LAZY_SCENE_ERROR_EVENT, this.handleError);
+		}
+
+		private clearLoadingTimer() {
+			if (this.loadingTimer !== undefined) {
+				window.clearTimeout(this.loadingTimer);
+				this.loadingTimer = undefined;
+			}
+		}
+
+		private finishLoading(state: "ready" | "error") {
+			if (this.dataset.state !== "loading") {
+				return;
+			}
+
+			this.dataset.state = state;
+			this.clearLoadingTimer();
+			this.querySelector<HTMLElement>("[data-loading]")?.classList.add("hidden");
+
+			if (state === "ready") {
+				this.querySelector<HTMLElement>("[data-content]")?.classList.remove(
+					"invisible",
+				);
+				return;
+			}
+
+			this.querySelector<HTMLElement>("[data-error]")?.classList.remove("hidden");
+			this.querySelector<HTMLElement>("[data-error]")?.classList.add("flex");
+		}
+	}
+
+	if (!customElements.get("lazy-scene")) {
+		customElements.define("lazy-scene", LazySceneElement);
+	}
+</script>

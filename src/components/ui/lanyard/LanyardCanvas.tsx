@@ -20,7 +20,8 @@ import {
 import { MeshLineGeometry } from "meshline";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { GlobalEvents } from "@/events/GlobalEvents";
+import { signalLazySceneReady } from "@/components/ui/loading/lazySceneEvents";
+import SceneErrorBoundary from "@/components/ui/loading/SceneErrorBoundary";
 import { calculateCameraDistance } from "./CameraFit";
 import cardGLB from "./card.glb?url";
 import holographicFragment from "./holographic.frag";
@@ -52,54 +53,56 @@ const CARD_MODEL_BOUNDS = {
 const CARD_FRAME_WIDTH =
 	(CARD_MODEL_BOUNDS.maxX - CARD_MODEL_BOUNDS.minX) * CARD_VISUAL_SCALE;
 
-export default function Lanyard() {
-	useEffect(() => {
-		window.dispatchEvent(GlobalEvents.LanyardLoaded);
-	}, []);
+interface LanyardProps {
+	boundaryId: string;
+}
 
+export default function Lanyard({ boundaryId }: LanyardProps) {
 	return (
 		<div className="relative z-0 w-full h-full flex justify-center items-center transform scale-100 origin-center select-none [-webkit-user-select:none]">
-			<Canvas
-				camera={{ position: [0, 0, CAMERA_BASE_DISTANCE], fov: CAMERA_FOV }}
-				gl={{ alpha: true }}
-				onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), 0)}
-			>
-				<ResponsiveCamera />
-				<ambientLight intensity={0.25} />
-				<Physics gravity={SCENE_GRAVITY} interpolate timeStep={1 / 30}>
-					<Band />
-				</Physics>
-				<Environment>
-					<Lightformer
-						intensity={2.5}
-						color="white"
-						position={[0, -1, 5]}
-						rotation={[0, 0, Math.PI / 3]}
-						scale={[100, 0.1, 1]}
-					/>
-					<Lightformer
-						intensity={4}
-						color="white"
-						position={[-1, -1, 1]}
-						rotation={[0, 0, Math.PI / 3]}
-						scale={[100, 0.1, 1]}
-					/>
-					<Lightformer
-						intensity={4}
-						color="white"
-						position={[1, 1, 1]}
-						rotation={[0, 0, Math.PI / 3]}
-						scale={[100, 0.1, 1]}
-					/>
-					<Lightformer
-						intensity={6}
-						color="white"
-						position={[-10, 0, 14]}
-						rotation={[0, Math.PI / 2, Math.PI / 3]}
-						scale={[100, 10, 1]}
-					/>
-				</Environment>
-			</Canvas>
+			<SceneErrorBoundary boundaryId={boundaryId}>
+				<Canvas
+					camera={{ position: [0, 0, CAMERA_BASE_DISTANCE], fov: CAMERA_FOV }}
+					gl={{ alpha: true }}
+					onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), 0)}
+				>
+					<ResponsiveCamera />
+					<ambientLight intensity={0.25} />
+					<Physics gravity={SCENE_GRAVITY} interpolate timeStep={1 / 30}>
+						<Band boundaryId={boundaryId} />
+					</Physics>
+					<Environment>
+						<Lightformer
+							intensity={2.5}
+							color="white"
+							position={[0, -1, 5]}
+							rotation={[0, 0, Math.PI / 3]}
+							scale={[100, 0.1, 1]}
+						/>
+						<Lightformer
+							intensity={4}
+							color="white"
+							position={[-1, -1, 1]}
+							rotation={[0, 0, Math.PI / 3]}
+							scale={[100, 0.1, 1]}
+						/>
+						<Lightformer
+							intensity={4}
+							color="white"
+							position={[1, 1, 1]}
+							rotation={[0, 0, Math.PI / 3]}
+							scale={[100, 0.1, 1]}
+						/>
+						<Lightformer
+							intensity={6}
+							color="white"
+							position={[-10, 0, 14]}
+							rotation={[0, Math.PI / 2, Math.PI / 3]}
+							scale={[100, 10, 1]}
+						/>
+					</Environment>
+				</Canvas>
+			</SceneErrorBoundary>
 		</div>
 	);
 }
@@ -164,7 +167,7 @@ const HOLO_DEFAULTS = {
 	idlePresence: 0.1,
 } as const;
 
-function Band() {
+function Band({ boundaryId }: LanyardProps) {
 	const band = useRef<THREE.Mesh<MeshLineGeometry>>(null);
 	const fixed = useRigidBodyRef();
 	const j1 = useRigidBodyRef();
@@ -177,6 +180,7 @@ function Band() {
 	const j3Point = useRef<THREE.Group>(null);
 	const cardMaterial = useRef<THREE.Mesh>(null);
 	const canvasSize = useThree((state) => state.size);
+	const readySent = useRef(false);
 
 	const vec = new THREE.Vector3();
 	const ang = new THREE.Vector3();
@@ -289,6 +293,11 @@ function Band() {
 	}, [hovered, dragged]);
 
 	useFrame((state) => {
+		if (!readySent.current) {
+			readySent.current = true;
+			signalLazySceneReady(boundaryId);
+		}
+
 		if (dragged && typeof dragged !== "boolean") {
 			state.raycaster.setFromCamera(state.pointer, state.camera);
 			if (state.raycaster.ray.intersectPlane(dragPlane, vec)) {

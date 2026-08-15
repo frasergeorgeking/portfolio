@@ -1,0 +1,14 @@
+---
+import LazyScene from "@/components/ui/loading/LazyScene.astro";
+import LanyardCanvas from "./LanyardCanvas";
+
+const boundaryId = "lanyard-preview";
+---
+
+<LazyScene
+	id={boundaryId}
+	label="Loading interactive lanyard"
+	class="h-[300px] w-full sm:absolute sm:inset-0 sm:h-auto"
+>
+	<LanyardCanvas boundaryId={boundaryId} client:load />
+</LazyScene>
