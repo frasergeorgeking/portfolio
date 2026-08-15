@@ -4,13 +4,25 @@ import {
 	useGLTF,
 	useTexture,
 } from "@react-three/drei";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import {
+	Canvas,
+	type ThreeEvent,
+	useFrame,
+	useThree,
+} from "@react-three/fiber";
+import {
+	type RefObject,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+} from "react";
 import * as THREE from "three";
 import { signalLazySceneReady } from "@/components/ui/loading/lazySceneEvents";
 import LazySceneErrorBoundary from "@/components/ui/loading/SceneErrorBoundary";
 import caseGLB from "./psx_case.glb?url";
 import type { GameCaseTextureUrls } from "./types";
+import { useGameCaseAnimations } from "./useGameCaseAnimations";
 
 const CAMERA_FOV = 30;
 const SUBJECT_RADIUS = 1.25;
@@ -20,16 +32,16 @@ const MODEL_CENTER_Y = -0.794357;
 
 const MATERIAL_FINISH = {
 	plastic: {
-		roughness: 0.1,
+		roughness: 0.22,
 		clearcoat: 1,
-		clearcoatRoughness: 0.05,
+		clearcoatRoughness: 0.1,
 		envMapIntensity: 1.2,
 	},
 	disc: {
-		roughness: 0.28,
-		clearcoat: 0.65,
-		clearcoatRoughness: 0.14,
-		envMapIntensity: 1.1,
+		roughness: 0.02,
+		clearcoat: 1,
+		clearcoatRoughness: 0,
+		envMapIntensity: 1.2,
 	},
 } as const;
 
@@ -50,60 +62,76 @@ interface Props {
 }
 
 export default function GameCaseCanvas({ boundaryId, textureUrls }: Props) {
+	const canvasMissHandler = useRef<() => void>(() => undefined);
+
 	return (
 		<div className="h-full min-h-[420px] w-full select-none">
 			<LazySceneErrorBoundary boundaryId={boundaryId}>
 				<Canvas
 					camera={{ position: [0, 0, 5], fov: CAMERA_FOV }}
 					gl={{ alpha: true, antialias: true }}
+					onPointerMissed={() => canvasMissHandler.current()}
 					onCreated={({ gl }) => {
 						gl.setClearColor(new THREE.Color(0x000000), 0);
 					}}
 				>
 					<ResponsiveCamera />
-					<hemisphereLight args={[0xffffff, 0x35354a, 3.75]} />
+					<hemisphereLight args={[0xffffff, 0x35354a, 3.25]} />
 					<directionalLight intensity={2.4} position={[4, 5, 3]} />
 					<directionalLight intensity={1.1} position={[-4, 1, -2]} />
 					<Environment resolution={256}>
 						<Lightformer
 							color="#ffffff"
-							intensity={3.5}
+							intensity={3.75}
 							position={[0, 4, -1]}
 							rotation={[Math.PI / 2, 0, 0]}
 							scale={[5, 1, 1]}
 						/>
 						<Lightformer
 							color="#dbeafe"
-							intensity={3}
+							intensity={3.25}
 							position={[-4, 0.5, 0]}
 							rotation={[0, Math.PI / 2, 0]}
 							scale={[4, 1, 1]}
 						/>
 						<Lightformer
 							color="#fef3c7"
-							intensity={2.5}
+							intensity={2.75}
 							position={[4, -1, -1]}
 							rotation={[0, -Math.PI / 2, 0]}
 							scale={[3, 0.8, 1]}
 						/>
 					</Environment>
-					<GameCaseModel boundaryId={boundaryId} textureUrls={textureUrls} />
+					<GameCaseModel
+						boundaryId={boundaryId}
+						textureUrls={textureUrls}
+						canvasMissHandler={canvasMissHandler}
+					/>
 				</Canvas>
 			</LazySceneErrorBoundary>
 		</div>
 	);
 }
 
-function GameCaseModel({ boundaryId, textureUrls }: Props) {
+interface GameCaseModelProps extends Props {
+	canvasMissHandler: RefObject<() => void>;
+}
+
+function GameCaseModel({
+	boundaryId,
+	textureUrls,
+	canvasMissHandler,
+}: GameCaseModelProps) {
 	const group = useRef<THREE.Group>(null);
 	const readySent = useRef(false);
 	const turntableEnabled = useTurntableEnabled();
-	const { scene } = useGLTF(caseGLB);
+	const { animations, scene } = useGLTF(caseGLB);
 	const textureUrlList = useMemo(
 		() => SURFACES.map((surface) => textureUrls[surface]),
 		[textureUrls],
 	);
 	const sourceTextures = useTexture(textureUrlList);
+	const canvas = useThree((state) => state.gl.domElement);
 	const maxAnisotropy = useThree((state) =>
 		state.gl.capabilities.getMaxAnisotropy(),
 	);
@@ -177,6 +205,26 @@ function GameCaseModel({ boundaryId, textureUrls }: Props) {
 
 		return { materials, model, textures };
 	}, [maxAnisotropy, scene, sourceTextures]);
+	const { dismissActiveLayer, interactWithModel } = useGameCaseAnimations(
+		animations,
+		prepared.model,
+	);
+	const handleModelClick = (event: ThreeEvent<MouseEvent>) => {
+		event.stopPropagation();
+		interactWithModel(hasNamedAncestor(event.object, "disc"));
+	};
+	useEffect(() => {
+		canvasMissHandler.current = dismissActiveLayer;
+		return () => {
+			canvasMissHandler.current = () => undefined;
+		};
+	}, [canvasMissHandler, dismissActiveLayer]);
+
+	useEffect(() => {
+		return () => {
+			canvas.style.removeProperty("cursor");
+		};
+	}, [canvas]);
 
 	useEffect(() => {
 		return () => {
@@ -201,14 +249,29 @@ function GameCaseModel({ boundaryId, textureUrls }: Props) {
 	});
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: This is an interactive Three.js scene object, not a DOM element.
 		<group
 			ref={group}
 			position={[0, MODEL_CENTER_Y, 0]}
 			rotation={[-0.1, -0.25, 0]}
+			onClick={handleModelClick}
+			onPointerEnter={() => canvas.style.setProperty("cursor", "pointer")}
+			onPointerLeave={() => canvas.style.removeProperty("cursor")}
 		>
 			<primitive object={prepared.model} dispose={null} />
 		</group>
 	);
+}
+
+function hasNamedAncestor(object: THREE.Object3D, name: string) {
+	let current: THREE.Object3D | null = object;
+	while (current) {
+		if (current.name === name) {
+			return true;
+		}
+		current = current.parent;
+	}
+	return false;
 }
 
 function ResponsiveCamera() {
