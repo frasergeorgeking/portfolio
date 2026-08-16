@@ -1,0 +1,122 @@
+---
+import BentoCardBase from "@/components/ui/bento/BentoCardBase.astro";
+
+interface Props {
+	count: string;
+	phrases: readonly string[];
+	label?: string;
+	class?: string;
+	cycleIntervalMs?: number;
+	exitDurationMs?: number;
+	enterDurationMs?: number;
+	countSize?: string;
+	phraseSize?: string;
+	phraseMaxWidth?: string;
+	phraseReelHeight?: string;
+}
+
+const {
+	count,
+	phrases,
+	label = "Games so far",
+	class: className,
+	cycleIntervalMs = 3000,
+	exitDurationMs = 220,
+	enterDurationMs = 360,
+	countSize = "3.75rem",
+	phraseSize = "clamp(1.25rem, 1rem + 0.5vw, 1.5rem)",
+	phraseMaxWidth = "20rem",
+	phraseReelHeight = "5.5rem",
+} = Astro.props;
+
+const initialPhrase = phrases[0] ?? "projects";
+const customProperties = [
+	`--game-count-size: ${countSize}`,
+	`--game-count-phrase-size: ${phraseSize}`,
+	`--game-count-phrase-width: ${phraseMaxWidth}`,
+	`--game-count-reel-height: ${phraseReelHeight}`,
+	`--game-count-exit-duration: ${exitDurationMs}ms`,
+	`--game-count-enter-duration: ${enterDurationMs}ms`,
+].join(";");
+---
+
+<BentoCardBase class={className}>
+	<div
+		class="flex min-h-full flex-col justify-center p-6 sm:p-8"
+		data-game-count-panel
+		data-cycle-interval-ms={cycleIntervalMs}
+		style={customProperties}
+	>
+		<p
+			class="text-xs font-medium uppercase tracking-[0.2em] text-neutral-500"
+		>
+			{label}
+		</p>
+		<p class="game-count-number mt-3 font-semibold leading-none text-neutral-200">
+			{count}
+			<span class="sr-only">games in this collection</span>
+		</p>
+		<div
+			class="game-count-reel mt-4 overflow-hidden font-medium leading-tight text-neutral-400"
+			aria-hidden="true"
+		>
+			<p
+				class="game-count-phrase"
+				data-game-count-phrases={JSON.stringify(phrases)}
+			>
+				{initialPhrase}
+			</p>
+		</div>
+	</div>
+</BentoCardBase>
+
+<script>
+	import "./GameCountPanel";
+</script>
+
+<style>
+	.game-count-number,
+	.game-count-phrase {
+		font-family: var(--font-family-display);
+	}
+
+	.game-count-number {
+		font-size: var(--game-count-size);
+	}
+
+	.game-count-reel {
+		height: var(--game-count-reel-height);
+		max-width: var(--game-count-phrase-width);
+		font-size: var(--game-count-phrase-size);
+	}
+
+	.game-count-phrase.is-leaving {
+		animation: phrase-out var(--game-count-exit-duration)
+			cubic-bezier(0.4, 0, 1, 1) forwards;
+	}
+
+	.game-count-phrase.is-entering {
+		animation: phrase-in var(--game-count-enter-duration)
+			cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	@keyframes phrase-out {
+		to {
+			opacity: 0;
+			transform: translateY(-110%);
+		}
+	}
+
+	@keyframes phrase-in {
+		from {
+			opacity: 0;
+			transform: translateY(110%);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.game-count-phrase {
+			animation: none;
+		}
+	}
+</style>

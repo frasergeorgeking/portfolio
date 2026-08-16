@@ -1,5 +1,6 @@
 import { useAnimations } from "@react-three/drei";
-import { useCallback, useEffect, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { type RefObject, useCallback, useEffect, useRef } from "react";
 import * as THREE from "three";
 
 const ANIMATION_NAMES = {
@@ -17,9 +18,13 @@ type DiscState = "hidden" | "revealing" | "revealed" | "spinning" | "hiding";
 export function useGameCaseAnimations(
 	animations: THREE.AnimationClip[],
 	model: THREE.Object3D,
+	renderEnabled: RefObject<boolean>,
 ) {
 	const caseState = useRef<CaseState>("closed");
 	const discState = useRef<DiscState>("hidden");
+	const isAnimating = useRef(false);
+	const clock = useThree((state) => state.clock);
+	const invalidate = useThree((state) => state.invalidate);
 	const { actions, mixer } = useAnimations(animations, model);
 
 	const playAnimation = useCallback(
@@ -45,8 +50,11 @@ export function useGameCaseAnimations(
 			action.reset();
 			action.setEffectiveTimeScale(1);
 			action.play();
+			isAnimating.current = true;
+			clock.getDelta();
+			invalidate();
 		},
-		[actions],
+		[actions, clock, invalidate],
 	);
 	const startCaseAnimation = useCallback(
 		(
@@ -137,6 +145,7 @@ export function useGameCaseAnimations(
 
 	useEffect(() => {
 		const handleFinished = ({ action }: { action: THREE.AnimationAction }) => {
+			isAnimating.current = false;
 			switch (action.getClip().name) {
 				case ANIMATION_NAMES.caseOpen:
 					caseState.current = "open";
@@ -159,6 +168,12 @@ export function useGameCaseAnimations(
 		mixer.addEventListener("finished", handleFinished);
 		return () => mixer.removeEventListener("finished", handleFinished);
 	}, [mixer]);
+
+	useFrame(() => {
+		if (isAnimating.current && renderEnabled.current) {
+			invalidate();
+		}
+	});
 
 	return { dismissActiveLayer, interactWithModel };
 }

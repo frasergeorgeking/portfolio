@@ -1,0 +1,314 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import BentoCardHero from "@/components/ui/bento/BentoCardHero.astro";
+import CTAButton from "@/components/ui/buttons/CTAButton.astro";
+import GameCase from "@/components/ui/game_case/GameCase.astro";
+import fallbackCaseInner from "@/components/ui/game_case/textures/generic/case_inner_empty1.png";
+import fallbackDiscBack from "@/components/ui/game_case/textures/generic/disc_back1.png";
+import type { GameCaseSkin } from "@/components/ui/game_case/types";
+import GameCountPanel from "@/components/ui/game_jams/GameCountPanel.astro";
+import GameJamCard from "@/components/ui/game_jams/GameJamCard.astro";
+import { gameCountPhrases } from "@/data/game-jam-count-phrases";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const games = (
+	await getCollection("gameJams", ({ data }) => data.published)
+).sort((first, second) => first.data.order - second.data.order);
+
+if (games.length === 0) {
+	throw new Error(
+		"The game-jam collection is empty. If the content config was added while Astro was running, restart the dev server so Astro can register it.",
+	);
+}
+
+const cardClasses = [
+	"col-span-1 sm:col-span-3 lg:col-span-3",
+	"col-span-1 sm:col-span-3 lg:col-span-2",
+	"col-span-1 sm:col-span-3 lg:col-span-2",
+	"col-span-1 sm:col-span-3 lg:col-span-3",
+	"col-span-1 sm:col-span-3 lg:col-span-5",
+];
+
+const frontCaseRotationY = -0.25;
+const backCaseRotationY = frontCaseRotationY + Math.PI;
+const formattedGameCount = String(games.length).padStart(2, "0");
+
+const gameCountPanelOptions = {
+	cycleIntervalMs: 3200,
+	exitDurationMs: 400,
+	enterDurationMs: 550,
+	countSize: "3.75rem",
+	phraseSize: "clamp(1.25rem, 1rem + 0.5vw, 1.5rem)",
+	phraseMaxWidth: "20rem",
+	phraseReelHeight: "5.5rem",
+} as const;
+
+function getCaseSkin(game: CollectionEntry<"gameJams">): GameCaseSkin {
+	return {
+		caseBack: game.data.case.back,
+		caseFront: game.data.case.front,
+		casePromo: game.data.case.promo,
+		caseInner: game.data.case.inner ?? fallbackCaseInner,
+		discBack: game.data.case.discBack ?? fallbackDiscBack,
+		discFront: game.data.case.discFront,
+	};
+}
+
+function formatTimeLimit(
+	timeLimit: CollectionEntry<"gameJams">["data"]["timeLimit"],
+) {
+	if (!timeLimit) {
+		return undefined;
+	}
+
+	const unit =
+		timeLimit.value === 1 ? timeLimit.unit.slice(0, -1) : timeLimit.unit;
+	return `${timeLimit.value} ${unit}`;
+}
+
+function getSearchText(game: CollectionEntry<"gameJams">) {
+	return [
+		game.data.title,
+		game.data.label,
+		game.data.event,
+		game.data.date?.getFullYear(),
+		...game.data.summary,
+		...game.data.madeWith.map(({ name }) => name),
+		game.data.theme?.name,
+		formatTimeLimit(game.data.timeLimit),
+		...game.data.tags,
+	]
+		.filter(Boolean)
+		.join(" ");
+}
+---
+
+<BaseLayout
+	title="Fraser King - Game Jams"
+	description="A collection of game jam projects and playful experiments by Fraser King and his many cool friends."
+>
+	<main class="flex w-full justify-center">
+		<div
+			id="game-jam-collection"
+			class="grid w-full max-w-7xl auto-rows-min grid-cols-1 gap-3 p-4 sm:grid-cols-3 sm:p-6 lg:grid-cols-5 lg:p-8"
+		>
+			<BentoCardHero class="col-span-1 sm:col-span-3 lg:col-span-3">
+				<div slot="header" class="flex items-center gap-2">
+					<span aria-hidden="true">🎮</span>
+					<p class="text-sm text-neutral-400">Game jam collection</p>
+				</div>
+
+				<div slot="title" class="flex flex-col gap-5">
+					<h1
+						class="max-w-3xl text-balance text-3xl font-medium leading-tight text-neutral-200 sm:text-4xl"
+					>
+						Games, prototypes, and experiments made with friends.
+					</h1>
+					<p
+						class="max-w-xl text-pretty leading-relaxed text-neutral-400"
+					>
+						A few friends, a short deadline, and an idea we haven’t
+						thought through properly. Here’s what we've duck-taped
+						together.
+					</p>
+				</div>
+
+				<div slot="actions">
+					<CTAButton
+						href="/"
+						label="Back home"
+						icon="arrow-right"
+						target="_self"
+					/>
+				</div>
+			</BentoCardHero>
+
+			<GameCountPanel
+				count={formattedGameCount}
+				phrases={gameCountPhrases}
+				class="col-span-1 sm:col-span-3 lg:col-span-2"
+				{...gameCountPanelOptions}
+			/>
+
+			<div class="col-span-full pb-1 pt-7">
+				<div
+					class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+				>
+					<div class="flex items-center gap-3">
+						<p
+							class="text-xs font-medium uppercase tracking-[0.2em] text-neutral-500"
+						>
+							Games
+						</p>
+						<p
+							id="game-search-status"
+							class="text-xs tabular-nums text-neutral-600"
+							aria-live="polite"
+						>
+							{games.length} of {games.length}
+						</p>
+					</div>
+
+					<div class="group relative w-full sm:max-w-sm">
+						<label for="game-search" class="sr-only"
+							>Search games</label
+						>
+						<svg
+							aria-hidden="true"
+							viewBox="0 0 20 20"
+							fill="none"
+							class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-neutral-500 transition-colors group-focus-within:text-neutral-300"
+						>
+							<path
+								d="m14.5 14.5 3 3m-1.25-8.25a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"></path>
+						</svg>
+						<input
+							id="game-search"
+							type="search"
+							inputmode="search"
+							autocomplete="off"
+							placeholder="Search games, themes, people…"
+							class="game-search-input h-10 w-full rounded-full border border-neutral-700/50 bg-neutral-800/60 pl-11 pr-11 text-sm font-medium text-neutral-300 outline-none transition-all duration-200 placeholder:font-normal placeholder:text-neutral-500 hover:border-neutral-600/50 hover:bg-neutral-700/50 focus:border-neutral-600/50 focus:bg-neutral-700/50 focus:ring-2 focus:ring-white/[0.04]"
+						/>
+						<button
+							id="game-search-clear"
+							type="button"
+							class="absolute right-1.5 top-1/2 hidden size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-600/50 hover:text-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
+							aria-label="Clear search"
+						>
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			{
+				games.map((game, index) => {
+					const caseSkin = getCaseSkin(game);
+					const isBackFacing = index % 2 === 1;
+
+					return (
+						<GameJamCard
+							title={game.data.title}
+							description={game.data.summary}
+							jam={game.data.label}
+							madeWith={game.data.madeWith}
+							theme={game.data.theme}
+							timeLimit={formatTimeLimit(game.data.timeLimit)}
+							tags={game.data.tags}
+							searchText={getSearchText(game)}
+							class={cardClasses[index] ?? cardClasses[1]}
+						>
+							<div
+								slot="media"
+								class="relative h-full min-h-[420px]"
+							>
+								{index === 0 && (
+									<div class="pointer-events-none absolute bottom-5 left-5 z-10 rounded-full border border-neutral-700/50 bg-black/40 px-3 py-1.5 text-xs text-neutral-400 backdrop-blur-sm sm:bottom-6 sm:left-6">
+										Drag to rotate · Click or tap to explore
+									</div>
+								)}
+								<GameCase
+									id={`${game.id}-case`}
+									skin={caseSkin}
+									initialRotationY={
+										isBackFacing
+											? backCaseRotationY
+											: frontCaseRotationY
+									}
+								/>
+							</div>
+						</GameJamCard>
+					);
+				})
+			}
+
+			<div
+				id="game-search-empty"
+				hidden
+				class="col-span-full flex min-h-56 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-neutral-900/20 px-6 py-12 text-center sm:min-h-72 sm:py-16"
+			>
+				<p class="text-sm font-medium text-neutral-300">
+					No games found
+				</p>
+				<p class="mt-1 text-sm text-neutral-500">
+					Try a title, theme, tag, event, or collaborator.
+				</p>
+			</div>
+		</div>
+	</main>
+</BaseLayout>
+
+<script>
+	function initGameSearch() {
+		const collection = document.querySelector("#game-jam-collection");
+		const input =
+			collection?.querySelector<HTMLInputElement>("#game-search");
+		const clearButton =
+			collection?.querySelector<HTMLButtonElement>("#game-search-clear");
+		const status = collection?.querySelector<HTMLElement>(
+			"#game-search-status",
+		);
+		const emptyState =
+			collection?.querySelector<HTMLElement>("#game-search-empty");
+		const cards = Array.from(
+			collection?.querySelectorAll<HTMLElement>("[data-game-card]") ?? [],
+		);
+
+		if (!input || !clearButton || !status || !emptyState) return;
+
+		const normalize = (value: string) =>
+			value
+				.toLocaleLowerCase()
+				.normalize("NFKD")
+				.replace(/[\u0300-\u036f]/g, "");
+
+		const searchableCards = cards.map((card) => ({
+			card,
+			text: normalize(card.dataset.search ?? ""),
+		}));
+
+		const filterGames = () => {
+			const terms = normalize(input.value)
+				.trim()
+				.split(/\s+/)
+				.filter(Boolean);
+			let visibleCount = 0;
+
+			for (const { card, text } of searchableCards) {
+				const matches = terms.every((term) => text.includes(term));
+				card.hidden = !matches;
+				if (matches) visibleCount += 1;
+			}
+
+			status.textContent = `${visibleCount} of ${cards.length}`;
+			emptyState.hidden = visibleCount !== 0;
+			clearButton.classList.toggle("hidden", terms.length === 0);
+			clearButton.classList.toggle("flex", terms.length > 0);
+		};
+
+		input.addEventListener("input", filterGames);
+		input.addEventListener("keydown", (event) => {
+			if (event.key === "Escape" && input.value) {
+				input.value = "";
+				filterGames();
+			}
+		});
+		clearButton.addEventListener("click", () => {
+			input.value = "";
+			filterGames();
+			input.focus();
+		});
+	}
+
+	initGameSearch();
+</script>
+
+<style>
+	.game-search-input::-webkit-search-cancel-button {
+		display: none;
+	}
+</style>

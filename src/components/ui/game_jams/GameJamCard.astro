@@ -1,0 +1,183 @@
+---
+import BentoCardBase from "@/components/ui/bento/BentoCardBase.astro";
+
+interface Props {
+	title: string;
+	description: string[];
+	jam: string;
+	madeWith: Array<{
+		name: string;
+		url?: string;
+	}>;
+	theme?: {
+		name: string;
+		emoji: string;
+	};
+	timeLimit?: string;
+	tags?: string[];
+	searchText?: string;
+	class?: string;
+}
+
+const {
+	title,
+	description,
+	jam,
+	madeWith,
+	theme,
+	timeLimit,
+	tags = [],
+	searchText,
+	class: className,
+} = Astro.props;
+
+const firstNameCounts = madeWith.reduce((counts, contributor) => {
+	const firstName = contributor.name
+		.trim()
+		.split(/\s+/)[0]
+		.toLocaleLowerCase();
+	counts.set(firstName, (counts.get(firstName) ?? 0) + 1);
+	return counts;
+}, new Map<string, number>());
+
+function getDisplayName(name: string) {
+	const nameParts = name.trim().split(/\s+/);
+	const firstName = nameParts[0];
+	const hasDuplicateFirstName =
+		(firstNameCounts.get(firstName.toLocaleLowerCase()) ?? 0) > 1;
+
+	if (!hasDuplicateFirstName || nameParts.length === 1) {
+		return firstName;
+	}
+
+	// If we have multiple 'bobs', show the first initial of the last name to disambiguate
+	const surname = nameParts[nameParts.length - 1];
+	return `${firstName} ${surname.charAt(0).toLocaleUpperCase()}.`;
+}
+---
+
+<BentoCardBase class={className} data-game-card data-search={searchText}>
+	<article class="flex min-h-full flex-col">
+		<div class="relative min-h-[420px] flex-1 border-b border-white/10">
+			<slot name="media" />
+		</div>
+
+		<div class="flex flex-col gap-5 p-6 sm:p-8">
+			<div
+				class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
+			>
+				<p
+					class="text-xs font-medium uppercase tracking-[0.2em] text-neutral-500"
+				>
+					{jam}
+				</p>
+
+				{
+					(timeLimit || theme) && (
+						<dl class="flex flex-wrap items-center gap-1.5 text-[10px] font-medium">
+							{timeLimit && (
+								<div class="rounded-full border border-yellow-500/20 bg-yellow-500/[0.06] px-2 py-0.5 text-yellow-200/80">
+									<dt class="sr-only">Time limit</dt>
+									<dd class="flex items-center gap-1.5">
+										<span
+											class="opacity-80"
+											aria-hidden="true"
+										>
+											⏳
+										</span>
+										{timeLimit}
+									</dd>
+								</div>
+							)}
+							{theme && (
+								<div class="min-w-0 rounded-full border border-violet-400/20 bg-violet-400/[0.06] px-2 py-0.5 text-violet-200/80">
+									<dt class="sr-only">Theme</dt>
+									<dd class="flex min-w-0 items-center gap-1.5">
+										<span
+											class="opacity-80"
+											aria-hidden="true"
+										>
+											{theme.emoji}
+										</span>
+										<span class="truncate">
+											{theme.name}
+										</span>
+									</dd>
+								</div>
+							)}
+						</dl>
+					)
+				}
+			</div>
+
+			<div class="flex flex-col gap-3">
+				<h2 class="text-2xl font-medium text-neutral-200 sm:text-3xl">
+					{title}
+				</h2>
+				<div class="flex max-w-2xl flex-col gap-3 text-neutral-400">
+					{
+						description.map((paragraph) => (
+							<p class="leading-relaxed">{paragraph}</p>
+						))
+					}
+				</div>
+			</div>
+
+			{
+				tags.length > 0 && (
+					<ul
+						class="tag-list flex flex-wrap items-center text-[10px] font-medium uppercase tracking-[0.12em] text-neutral-500"
+						aria-label="Game tags"
+					>
+						{tags.map((tag) => (
+							<li>{tag}</li>
+						))}
+					</ul>
+				)
+			}
+
+			<p class="text-xs leading-relaxed text-neutral-500">
+				Made with <span aria-label="love">❤️</span> by{
+					madeWith.map((contributor, index) => {
+						const separator =
+							index === 0
+								? " "
+								: index === madeWith.length - 1
+									? madeWith.length === 2
+										? " and "
+										: ", and "
+									: ", ";
+
+						return (
+							<>
+								{separator}
+								{contributor.url ? (
+									<a
+										href={contributor.url}
+										class="text-neutral-400 underline decoration-neutral-700 underline-offset-2 transition-colors hover:text-neutral-200"
+										target="_blank"
+										rel="noreferrer"
+									>
+										{getDisplayName(contributor.name)}
+									</a>
+								) : (
+									<span class="text-neutral-400">
+										{getDisplayName(contributor.name)}
+									</span>
+								)}
+							</>
+						);
+					})
+				}.
+			</p>
+		</div>
+	</article>
+</BentoCardBase>
+
+<style>
+	.tag-list li:not(:first-child)::before {
+		content: "·";
+		margin-inline: 0.375rem;
+		color: rgb(64 64 64);
+	}
+</style>

@@ -24,11 +24,33 @@ import caseGLB from "./psx_case.glb?url";
 import type { GameCaseTextureUrls } from "./types";
 import { useGameCaseAnimations } from "./useGameCaseAnimations";
 
-const CAMERA_FOV = 30;
-const SUBJECT_RADIUS = 1.25;
-const CAMERA_PADDING = 1.15;
-const TURNTABLE_SPEED = 0.18;
-const MODEL_CENTER_Y = -0.794357;
+const CAMERA_CONFIG = {
+	fov: 30,
+	subjectRadius: 1.25,
+	padding: 1.14,
+} as const;
+
+const INTERACTION_CONFIG = {
+	turntableSpeed: 0.18,
+	dragRotationSpeed: 0.008,
+	dragIntentThreshold: 6,
+	horizontalIntentRatio: 1.15,
+} as const;
+
+const MOMENTUM_CONFIG = {
+	damping: 1.85,
+	velocitySmoothingMin: 24,
+	velocitySmoothingMax: 72,
+	maxSpeed: 12,
+	settleThreshold: 0.01,
+	releaseGrace: 0.05,
+	releaseDamping: 8,
+} as const;
+
+const MODEL_CONFIG = {
+	centerY: -0.794357,
+	defaultRotationY: -0.25,
+} as const;
 
 const MATERIAL_FINISH = {
 	plastic: {
@@ -59,17 +81,24 @@ const SURFACES = Object.keys(SURFACE_MESHES) as (keyof GameCaseTextureUrls)[];
 interface Props {
 	boundaryId: string;
 	textureUrls: GameCaseTextureUrls;
+	initialRotationY?: number;
 }
 
-export default function GameCaseCanvas({ boundaryId, textureUrls }: Props) {
+export default function GameCaseCanvas({
+	boundaryId,
+	textureUrls,
+	initialRotationY = MODEL_CONFIG.defaultRotationY,
+}: Props) {
 	const canvasMissHandler = useRef<() => void>(() => undefined);
 
 	return (
 		<div className="h-full min-h-[420px] w-full select-none">
 			<LazySceneErrorBoundary boundaryId={boundaryId}>
 				<Canvas
-					camera={{ position: [0, 0, 5], fov: CAMERA_FOV }}
+					camera={{ position: [0, 0, 5], fov: CAMERA_CONFIG.fov }}
+					frameloop="demand"
 					gl={{ alpha: true, antialias: true }}
+					style={{ touchAction: "pan-y" }}
 					onPointerMissed={() => canvasMissHandler.current()}
 					onCreated={({ gl }) => {
 						gl.setClearColor(new THREE.Color(0x000000), 0);
@@ -105,6 +134,7 @@ export default function GameCaseCanvas({ boundaryId, textureUrls }: Props) {
 					<GameCaseModel
 						boundaryId={boundaryId}
 						textureUrls={textureUrls}
+						initialRotationY={initialRotationY}
 						canvasMissHandler={canvasMissHandler}
 					/>
 				</Canvas>
@@ -113,18 +143,24 @@ export default function GameCaseCanvas({ boundaryId, textureUrls }: Props) {
 	);
 }
 
-interface GameCaseModelProps extends Props {
+interface GameCaseModelProps extends Omit<Props, "initialRotationY"> {
+	initialRotationY: number;
 	canvasMissHandler: RefObject<() => void>;
 }
 
 function GameCaseModel({
 	boundaryId,
 	textureUrls,
+	initialRotationY,
 	canvasMissHandler,
 }: GameCaseModelProps) {
 	const group = useRef<THREE.Group>(null);
 	const readySent = useRef(false);
-	const turntableEnabled = useTurntableEnabled();
+	const isDragging = useRef(false);
+	const isGliding = useRef(false);
+	const momentumVelocity = useRef(0);
+	const suppressNextClick = useRef(false);
+	const { renderEnabled, turntableEnabled } = useRenderActivity();
 	const { animations, scene } = useGLTF(caseGLB);
 	const textureUrlList = useMemo(
 		() => SURFACES.map((surface) => textureUrls[surface]),
@@ -132,6 +168,7 @@ function GameCaseModel({
 	);
 	const sourceTextures = useTexture(textureUrlList);
 	const canvas = useThree((state) => state.gl.domElement);
+	const invalidate = useThree((state) => state.invalidate);
 	const maxAnisotropy = useThree((state) =>
 		state.gl.capabilities.getMaxAnisotropy(),
 	);
@@ -208,9 +245,14 @@ function GameCaseModel({
 	const { dismissActiveLayer, interactWithModel } = useGameCaseAnimations(
 		animations,
 		prepared.model,
+		renderEnabled,
 	);
 	const handleModelClick = (event: ThreeEvent<MouseEvent>) => {
 		event.stopPropagation();
+		if (suppressNextClick.current) {
+			suppressNextClick.current = false;
+			return;
+		}
 		interactWithModel(hasNamedAncestor(event.object, "disc"));
 	};
 	useEffect(() => {
@@ -221,10 +263,164 @@ function GameCaseModel({
 	}, [canvasMissHandler, dismissActiveLayer]);
 
 	useEffect(() => {
-		return () => {
+		let activePointerId: number | null = null;
+		let startX = 0;
+		let startY = 0;
+		let previousX = 0;
+		let previousTimestamp = 0;
+		let intent: "pending" | "horizontal" | "vertical" = "pending";
+		let clickResetTimer: number | undefined;
+
+		const resetGesture = (event?: PointerEvent) => {
+			if (event && event.pointerId !== activePointerId) {
+				return;
+			}
+
+			if (isDragging.current) {
+				suppressNextClick.current = true;
+				const reducedMotion = window.matchMedia(
+					"(prefers-reduced-motion: reduce)",
+				).matches;
+
+				if (reducedMotion) {
+					momentumVelocity.current = 0;
+				} else if (event) {
+					const releaseDelay = Math.max(
+						(event.timeStamp - previousTimestamp) / 1000 -
+							MOMENTUM_CONFIG.releaseGrace,
+						0,
+					);
+					momentumVelocity.current = THREE.MathUtils.damp(
+						momentumVelocity.current,
+						0,
+						MOMENTUM_CONFIG.releaseDamping,
+						releaseDelay,
+					);
+				}
+				isGliding.current =
+					Math.abs(momentumVelocity.current) > MOMENTUM_CONFIG.settleThreshold;
+				if (isGliding.current) {
+					invalidate();
+				}
+				window.clearTimeout(clickResetTimer);
+				clickResetTimer = window.setTimeout(() => {
+					suppressNextClick.current = false;
+				}, 0);
+			}
+
+			if (
+				activePointerId !== null &&
+				canvas.hasPointerCapture(activePointerId)
+			) {
+				canvas.releasePointerCapture(activePointerId);
+			}
+
+			activePointerId = null;
+			isDragging.current = false;
+			intent = "pending";
 			canvas.style.removeProperty("cursor");
 		};
-	}, [canvas]);
+
+		const handlePointerDown = (event: PointerEvent) => {
+			if (
+				activePointerId !== null ||
+				(event.pointerType === "mouse" && event.button !== 0)
+			) {
+				return;
+			}
+
+			activePointerId = event.pointerId;
+			startX = event.clientX;
+			startY = event.clientY;
+			previousX = event.clientX;
+			previousTimestamp = event.timeStamp;
+			intent = "pending";
+		};
+
+		const handlePointerMove = (event: PointerEvent) => {
+			if (event.pointerId !== activePointerId || !group.current) {
+				return;
+			}
+
+			const totalX = event.clientX - startX;
+			const totalY = event.clientY - startY;
+
+			if (intent === "pending") {
+				if (
+					Math.max(Math.abs(totalX), Math.abs(totalY)) <
+					INTERACTION_CONFIG.dragIntentThreshold
+				) {
+					return;
+				}
+
+				if (
+					Math.abs(totalX) <
+					Math.abs(totalY) * INTERACTION_CONFIG.horizontalIntentRatio
+				) {
+					intent = "vertical";
+					return;
+				}
+
+				intent = "horizontal";
+				isDragging.current = true;
+				isGliding.current = false;
+				momentumVelocity.current = 0;
+				canvas.setPointerCapture(event.pointerId);
+				canvas.style.setProperty("cursor", "grabbing");
+				previousX = event.clientX;
+				previousTimestamp = event.timeStamp;
+			}
+
+			if (intent !== "horizontal") {
+				return;
+			}
+
+			event.preventDefault();
+			const elapsedSeconds = Math.max(
+				(event.timeStamp - previousTimestamp) / 1000,
+				0.001,
+			);
+			const rotationDelta =
+				(event.clientX - previousX) * INTERACTION_CONFIG.dragRotationSpeed;
+			const instantVelocity = THREE.MathUtils.clamp(
+				rotationDelta / elapsedSeconds,
+				-MOMENTUM_CONFIG.maxSpeed,
+				MOMENTUM_CONFIG.maxSpeed,
+			);
+			const speedRatio = Math.abs(instantVelocity) / MOMENTUM_CONFIG.maxSpeed;
+			const velocitySmoothing = THREE.MathUtils.lerp(
+				MOMENTUM_CONFIG.velocitySmoothingMin,
+				MOMENTUM_CONFIG.velocitySmoothingMax,
+				speedRatio * speedRatio,
+			);
+
+			group.current.rotation.y += rotationDelta;
+			invalidate();
+			momentumVelocity.current = THREE.MathUtils.lerp(
+				momentumVelocity.current,
+				instantVelocity,
+				1 - Math.exp(-velocitySmoothing * elapsedSeconds),
+			);
+			previousX = event.clientX;
+			previousTimestamp = event.timeStamp;
+		};
+
+		canvas.addEventListener("pointerdown", handlePointerDown);
+		canvas.addEventListener("pointermove", handlePointerMove, {
+			passive: false,
+		});
+		window.addEventListener("pointerup", resetGesture);
+		window.addEventListener("pointercancel", resetGesture);
+
+		return () => {
+			window.clearTimeout(clickResetTimer);
+			canvas.removeEventListener("pointerdown", handlePointerDown);
+			canvas.removeEventListener("pointermove", handlePointerMove);
+			window.removeEventListener("pointerup", resetGesture);
+			window.removeEventListener("pointercancel", resetGesture);
+			canvas.style.removeProperty("cursor");
+		};
+	}, [canvas, invalidate]);
 
 	useEffect(() => {
 		return () => {
@@ -243,8 +439,39 @@ function GameCaseModel({
 			signalLazySceneReady(boundaryId);
 		}
 
-		if (turntableEnabled.current && group.current) {
-			group.current.rotation.y += delta * TURNTABLE_SPEED;
+		if (!group.current || isDragging.current) {
+			return;
+		}
+
+		if (isGliding.current) {
+			const targetVelocity = turntableEnabled.current
+				? INTERACTION_CONFIG.turntableSpeed
+				: 0;
+			momentumVelocity.current = THREE.MathUtils.damp(
+				momentumVelocity.current,
+				targetVelocity,
+				MOMENTUM_CONFIG.damping,
+				delta,
+			);
+			group.current.rotation.y += momentumVelocity.current * delta;
+
+			if (
+				Math.abs(momentumVelocity.current - targetVelocity) <
+				MOMENTUM_CONFIG.settleThreshold
+			) {
+				isGliding.current = false;
+				momentumVelocity.current = 0;
+			}
+
+			if (renderEnabled.current) {
+				invalidate();
+			}
+			return;
+		}
+
+		if (turntableEnabled.current) {
+			group.current.rotation.y += delta * INTERACTION_CONFIG.turntableSpeed;
+			invalidate();
 		}
 	});
 
@@ -252,10 +479,10 @@ function GameCaseModel({
 		// biome-ignore lint/a11y/noStaticElementInteractions: This is an interactive Three.js scene object, not a DOM element.
 		<group
 			ref={group}
-			position={[0, MODEL_CENTER_Y, 0]}
-			rotation={[-0.1, -0.25, 0]}
+			position={[0, MODEL_CONFIG.centerY, 0]}
+			rotation={[-0.1, initialRotationY, 0]}
 			onClick={handleModelClick}
-			onPointerEnter={() => canvas.style.setProperty("cursor", "pointer")}
+			onPointerEnter={() => canvas.style.setProperty("cursor", "grab")}
 			onPointerLeave={() => canvas.style.removeProperty("cursor")}
 		>
 			<primitive object={prepared.model} dispose={null} />
@@ -284,15 +511,15 @@ function ResponsiveCamera() {
 			return;
 		}
 
-		const verticalFov = THREE.MathUtils.degToRad(CAMERA_FOV);
+		const verticalFov = THREE.MathUtils.degToRad(CAMERA_CONFIG.fov);
 		const horizontalFov =
 			2 * Math.atan(Math.tan(verticalFov / 2) * (size.width / size.height));
 		const limitingFov = Math.min(verticalFov, horizontalFov);
 		const distance =
-			(SUBJECT_RADIUS * CAMERA_PADDING) /
+			(CAMERA_CONFIG.subjectRadius * CAMERA_CONFIG.padding) /
 			Math.sin(Math.max(limitingFov / 2, 0.01));
 
-		camera.fov = CAMERA_FOV;
+		camera.fov = CAMERA_CONFIG.fov;
 		camera.position.set(0, 0, distance);
 		camera.lookAt(0, 0, 0);
 		camera.updateProjectionMatrix();
@@ -303,19 +530,31 @@ function ResponsiveCamera() {
 	return null;
 }
 
-function useTurntableEnabled() {
+function useRenderActivity() {
 	const canvas = useThree((state) => state.gl.domElement);
-	const enabled = useRef(false);
+	const clock = useThree((state) => state.clock);
+	const invalidate = useThree((state) => state.invalidate);
+	const renderEnabled = useRef(false);
+	const turntableEnabled = useRef(false);
 
 	useEffect(() => {
 		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 		let isIntersecting = false;
 
 		const update = () => {
-			enabled.current =
-				isIntersecting &&
-				document.visibilityState === "visible" &&
-				!reducedMotion.matches;
+			const nextRenderEnabled =
+				isIntersecting && document.visibilityState === "visible";
+			const nextTurntableEnabled = nextRenderEnabled && !reducedMotion.matches;
+			const shouldResume =
+				nextRenderEnabled &&
+				(!renderEnabled.current ||
+					(nextTurntableEnabled && !turntableEnabled.current));
+			renderEnabled.current = nextRenderEnabled;
+			turntableEnabled.current = nextTurntableEnabled;
+			if (shouldResume) {
+				clock.getDelta();
+				invalidate();
+			}
 		};
 		const observer = new IntersectionObserver(([entry]) => {
 			isIntersecting = entry?.isIntersecting ?? false;
@@ -331,9 +570,9 @@ function useTurntableEnabled() {
 			document.removeEventListener("visibilitychange", update);
 			reducedMotion.removeEventListener("change", update);
 		};
-	}, [canvas]);
+	}, [canvas, clock, invalidate]);
 
-	return enabled;
+	return { renderEnabled, turntableEnabled };
 }
 
 useGLTF.preload(caseGLB);

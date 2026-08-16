@@ -7,10 +7,11 @@ import type { GameCaseSkin, GameCaseTextureUrls } from "./types";
 interface Props {
 	id: string;
 	skin: GameCaseSkin;
+	initialRotationY?: number;
 	class?: string;
 }
 
-const { id, skin, class: className } = Astro.props;
+const { id, skin, initialRotationY, class: className } = Astro.props;
 const skinEntries = Object.entries(skin) as [
 	keyof GameCaseSkin,
 	ImageMetadata,
@@ -29,5 +30,10 @@ const textureUrls = Object.fromEntries(optimizedEntries) as GameCaseTextureUrls;
 	label="Loading game case preview"
 	class:list={["h-full min-h-[300px] w-full", className]}
 >
-	<GameCaseCanvas boundaryId={id} textureUrls={textureUrls} client:visible />
+	<GameCaseCanvas
+		boundaryId={id}
+		textureUrls={textureUrls}
+		initialRotationY={initialRotationY}
+		client:visible
+	/>
 </LazyScene>
