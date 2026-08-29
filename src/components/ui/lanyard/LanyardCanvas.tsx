@@ -22,10 +22,10 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { signalLazySceneReady } from "@/components/ui/loading/lazySceneEvents";
 import SceneErrorBoundary from "@/components/ui/loading/SceneErrorBoundary";
-import { calculateCameraDistance } from "./CameraFit";
+import { calculateCameraDistance } from "./cameraFit";
 import cardGLB from "./card.glb?url";
 import holographicFragment from "./holographic.frag";
-import holographicPostFragment from "./holographic_post.frag";
+import holographicPostFragment from "./holographic-post.frag";
 import { LanyardMaterial } from "./LanyardMaterial";
 import lanyardImg from "./lanyard.png";
 

@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import type React from "react";
 import { useEffect, useId, useRef, useState } from "react";
 
-import { mergeClassNames } from "@/lib/Utils";
+import { mergeClassNames } from "@/lib/utils";
 
 interface DotPatternProps extends React.SVGProps<SVGSVGElement> {
 	/**

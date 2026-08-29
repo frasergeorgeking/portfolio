@@ -34,10 +34,7 @@ const shufflePhrases = (
 		);
 
 		if (swapIndex > 0) {
-			[shuffled[0], shuffled[swapIndex]] = [
-				shuffled[swapIndex],
-				shuffled[0],
-			];
+			[shuffled[0], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[0]];
 		}
 	}
 
