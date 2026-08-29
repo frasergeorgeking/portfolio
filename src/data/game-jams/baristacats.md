@@ -23,10 +23,10 @@ tags:
   - Comedy
   - Feline
 case:
-  front: ../../components/ui/game-case/textures/baristacats/case-front-1.png
-  back: ../../components/ui/game-case/textures/baristacats/case-back-1.png
-  promo: ../../components/ui/game-case/textures/baristacats/case-promo-1.png
-  discFront: ../../components/ui/game-case/textures/baristacats/disc-front-1.png
+  front: ./assets/baristacats/case-front-1.png
+  back: ./assets/baristacats/case-back-1.png
+  promo: ./assets/baristacats/case-promo-1.png
+  discFront: ./assets/baristacats/disc-front-1.png
 ---
 
 Project details, credits, development notes, and a postmortem can live here when the full game page is ready.

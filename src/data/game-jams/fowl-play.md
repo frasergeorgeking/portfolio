@@ -28,12 +28,10 @@ tags:
   - Rhyming
   - Feline
 case:
-  front: ../../components/ui/game-case/textures/fowl-play/case-front-1.png
-  back: ../../components/ui/game-case/textures/fowl-play/case-back-1.png
-  promo: ../../components/ui/game-case/textures/fowl-play/case-promo-1.png
-  inner: ../../components/ui/game-case/textures/generic/case-inner-empty-1.png
-  discFront: ../../components/ui/game-case/textures/fowl-play/disc-front-1.png
-  discBack: ../../components/ui/game-case/textures/generic/disc-back-1.png
+  front: ./assets/fowl-play/case-front-1.png
+  back: ./assets/fowl-play/case-back-1.png
+  promo: ./assets/fowl-play/case-promo-1.png
+  discFront: ./assets/fowl-play/disc-front-1.png
 ---
 
 Project details, credits, development notes, and a postmortem can live here when the full game page is ready.

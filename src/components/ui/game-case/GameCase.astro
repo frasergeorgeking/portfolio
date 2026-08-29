@@ -1,6 +1,8 @@
 ---
 import { getImage } from "astro:assets";
 import LazyScene from "@/components/ui/loading/LazyScene.astro";
+import fallbackCaseInner from "./assets/case-inner-empty-1.png";
+import fallbackDiscBack from "./assets/disc-back-1.png";
 import GameCaseCanvas from "./GameCaseCanvas";
 import type { GameCaseSkin, GameCaseTextureUrls } from "./types";
 
@@ -12,7 +14,12 @@ interface Props {
 }
 
 const { id, skin, initialRotationY, class: className } = Astro.props;
-const skinEntries = Object.entries(skin) as [
+const resolvedSkin: Required<GameCaseSkin> = {
+	...skin,
+	caseInner: skin.caseInner ?? fallbackCaseInner,
+	discBack: skin.discBack ?? fallbackDiscBack,
+};
+const skinEntries = Object.entries(resolvedSkin) as [
 	keyof GameCaseSkin,
 	ImageMetadata,
 ][];

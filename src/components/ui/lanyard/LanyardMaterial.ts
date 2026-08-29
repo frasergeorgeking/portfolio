@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import fragmentShader from "./lanyard.frag";
-import vertexShader from "./lanyard.vert";
+import fragmentShader from "./assets/lanyard.frag";
+import vertexShader from "./assets/lanyard.vert";
 
 const TEXTURE_REPEAT = new THREE.Vector2(-4, 1);
 

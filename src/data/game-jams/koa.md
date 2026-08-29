@@ -26,12 +26,10 @@ tags:
   - Mystical
   - Best on controller
 case:
-  front: ../../components/ui/game-case/textures/koa/case-front-1.png
-  back: ../../components/ui/game-case/textures/koa/case-back-1.png
-  promo: ../../components/ui/game-case/textures/koa/case-promo-1.png
-  inner: ../../components/ui/game-case/textures/generic/case-inner-empty-1.png
-  discFront: ../../components/ui/game-case/textures/koa/disc-front-1.png
-  discBack: ../../components/ui/game-case/textures/generic/disc-back-1.png
+  front: ./assets/koa/case-front-1.png
+  back: ./assets/koa/case-back-1.png
+  promo: ./assets/koa/case-promo-1.png
+  discFront: ./assets/koa/disc-front-1.png
 ---
 
 Project details, credits, development notes, and a postmortem can live here when the full game page is ready.
