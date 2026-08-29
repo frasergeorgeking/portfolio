@@ -3,13 +3,11 @@ import { getCollection, type CollectionEntry } from "astro:content";
 import BentoCardHero from "@/components/ui/bento/BentoCardHero.astro";
 import CTAButton from "@/components/ui/buttons/CTAButton.astro";
 import GameCase from "@/components/ui/game-case/GameCase.astro";
-import fallbackCaseInner from "@/components/ui/game-case/textures/generic/case-inner-empty-1.png";
-import fallbackDiscBack from "@/components/ui/game-case/textures/generic/disc-back-1.png";
 import type { GameCaseSkin } from "@/components/ui/game-case/types";
 import GameCountPanel from "@/components/ui/game-jams/GameCountPanel.astro";
 import GameJamCard from "@/components/ui/game-jams/GameJamCard.astro";
 import { gameCountPhrases } from "@/data/game-jam-count-phrases";
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import BaseLayout from "@/layouts/base/BaseLayout.astro";
 
 const games = (
 	await getCollection("gameJams", ({ data }) => data.published)
@@ -48,8 +46,8 @@ function getCaseSkin(game: CollectionEntry<"gameJams">): GameCaseSkin {
 		caseBack: game.data.case.back,
 		caseFront: game.data.case.front,
 		casePromo: game.data.case.promo,
-		caseInner: game.data.case.inner ?? fallbackCaseInner,
-		discBack: game.data.case.discBack ?? fallbackDiscBack,
+		caseInner: game.data.case.inner,
+		discBack: game.data.case.discBack,
 		discFront: game.data.case.discFront,
 	};
 }

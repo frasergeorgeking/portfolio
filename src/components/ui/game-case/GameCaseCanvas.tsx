@@ -20,7 +20,7 @@ import {
 import * as THREE from "three";
 import { signalLazySceneReady } from "@/components/ui/loading/lazySceneEvents";
 import LazySceneErrorBoundary from "@/components/ui/loading/SceneErrorBoundary";
-import caseGLB from "./psx-case.glb?url";
+import caseGLB from "./assets/psx-case.glb?url";
 import type { GameCaseTextureUrls } from "./types";
 import { useGameCaseAnimations } from "./useGameCaseAnimations";
 

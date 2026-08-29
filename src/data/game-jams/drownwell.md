@@ -26,12 +26,10 @@ tags:
   - Platformer
   - Best on controller
 case:
-  front: ../../components/ui/game-case/textures/drownwell/case-front-1.png
-  back: ../../components/ui/game-case/textures/drownwell/case-back-1.png
-  promo: ../../components/ui/game-case/textures/drownwell/case-promo-1.png
-  inner: ../../components/ui/game-case/textures/generic/case-inner-empty-1.png
-  discFront: ../../components/ui/game-case/textures/drownwell/disc-front-1.png
-  discBack: ../../components/ui/game-case/textures/generic/disc-back-1.png
+  front: ./assets/drownwell/case-front-1.png
+  back: ./assets/drownwell/case-back-1.png
+  promo: ./assets/drownwell/case-promo-1.png
+  discFront: ./assets/drownwell/disc-front-1.png
 ---
 
 Project details, credits, development notes, and a postmortem can live here when the full game page is ready.
