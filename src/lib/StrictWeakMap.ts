@@ -1,4 +1,4 @@
-import { assertNotNullish } from "./Utils";
+import { assertNotNullish } from "./utils";
 
 /**
  * A strict implementation of WeakMap, guaranteeing all retrieved values
