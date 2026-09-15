@@ -22,7 +22,7 @@
 		"prepare": "husky",
 		"release": "semantic-release"
 	},
-	"packageManager": "pnpm@11.21.0",
+	"packageManager": "pnpm@12.4.2",
 	"dependencies": {
 		"@astrojs/react": "^6.0.4",
 		"@react-three/drei": "^10.7.8",
