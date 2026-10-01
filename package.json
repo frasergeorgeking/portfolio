@@ -24,7 +24,7 @@
 	},
 	"packageManager": "pnpm@12.4.2",
 	"dependencies": {
-		"@astrojs/react": "^6.0.4",
+		"@astrojs/react": "^7.0.0",
 		"@react-three/drei": "^10.7.9",
 		"@react-three/fiber": "^9.8.1",
 		"@react-three/rapier": "^2.2.0",
