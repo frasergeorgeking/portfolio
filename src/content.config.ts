@@ -1,6 +1,15 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
+import {
+	type ContributorId,
+	contributors,
+} from "./data/game-jams/contributors";
+
+const contributorIds = Object.keys(contributors) as [
+	ContributorId,
+	...ContributorId[],
+];
 
 const gameJams = defineCollection({
 	loader: glob({ pattern: "*.md", base: "./src/data/game-jams" }),
@@ -10,12 +19,7 @@ const gameJams = defineCollection({
 			label: z.string(),
 			summary: z.array(z.string()).min(1),
 			madeWith: z
-				.array(
-					z.object({
-						name: z.string(),
-						url: z.url().optional(),
-					}),
-				)
+				.array(z.enum(contributorIds).transform((id) => contributors[id]))
 				.min(1),
 			order: z.number().int().positive(),
 			published: z.boolean().default(true),

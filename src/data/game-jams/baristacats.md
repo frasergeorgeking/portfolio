@@ -4,10 +4,10 @@ label: Global Game Jam 2024
 summary:
   - "Mr Milky has nine lives, an apron, and one hospitality shift to contemplate the crushing indignity of gainful employment."
 madeWith:
-  - name: Fraser King
-  - name: Melanie Townsend
-  - name: Dan Pokladek
-  - name: Kyle Bodin
+  - fraser-king
+  - melanie-townsend
+  - dan-pokladek
+  - kyle-bodin
 order: 2
 published: true
 event: Global Game Jam

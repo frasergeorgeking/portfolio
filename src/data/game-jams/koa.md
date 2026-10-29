@@ -4,13 +4,13 @@ label: Global Game Jam 2023
 summary:
   - "KOA is rooted to the ground. A 3D platformer where every step is limited by how far their roots can reach."
 madeWith:
-  - name: Fraser King
-  - name: Zoey Turner
-  - name: Kyle Bodin
-  - name: Dan Pokladek
-  - name: Dan Marsh
-  - name: Katie Millar
-  - name: Jayden Murray
+  - fraser-king
+  - zoey-turner
+  - kyle-bodin
+  - dan-pokladek
+  - dan-marsh
+  - katie-millar
+  - jayden-murray
 order: 3
 published: true
 event: Global Game Jam
