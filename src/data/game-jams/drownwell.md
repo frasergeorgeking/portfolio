@@ -4,12 +4,12 @@ label: Global Game Jam 2025
 summary:
   - "Pop bubbles. Climb higher. Don't drown. Drownwell is a frantic 2D score-chaser where one missed landing can sink the whole run."
 madeWith:
-  - name: Fraser King
-  - name: Zoey Turner
-  - name: Dan Pokladek
-  - name: Kyle Bodin
-  - name: Katie Millar
-  - name: Meadhbh Black
+  - fraser-king
+  - zoey-turner
+  - dan-pokladek
+  - kyle-bodin
+  - katie-millar
+  - meadhbh-black
 order: 1
 published: true
 event: Global Game Jam

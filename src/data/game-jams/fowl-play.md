@@ -4,14 +4,14 @@ label: Global Game Jam 2022
 summary:
   - "Thine Owl's big break is here, but a feline saboteur has other plans. One player performs in time and rhyme while the other works the switches to bring down the show."
 madeWith:
-  - name: Fraser King
-  - name: Zoey Turner
-  - name: Kyle Bodin
-  - name: Dan Pokladek
-  - name: Dan Marsh
-  - name: Katie Millar
-  - name: Jayden Murray
-  - name: Sam McMillan
+  - fraser-king
+  - zoey-turner
+  - kyle-bodin
+  - dan-pokladek
+  - dan-marsh
+  - katie-millar
+  - jayden-murray
+  - sam-mcmillan
 order: 4
 published: true
 event: Global Game Jam
