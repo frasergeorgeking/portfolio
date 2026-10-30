@@ -1,6 +1,6 @@
 import { useAnimations } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
-import { type RefObject, useCallback, useEffect, useRef } from "react";
+import { useThree } from "@react-three/fiber";
+import { useCallback, useEffect, useRef } from "react";
 import * as THREE from "three";
 
 const ANIMATION_NAMES = {
@@ -18,7 +18,6 @@ type DiscState = "hidden" | "revealing" | "revealed" | "spinning" | "hiding";
 export function useGameCaseAnimations(
 	animations: THREE.AnimationClip[],
 	model: THREE.Object3D,
-	renderEnabled: RefObject<boolean>,
 ) {
 	const caseState = useRef<CaseState>("closed");
 	const discState = useRef<DiscState>("hidden");
@@ -169,11 +168,5 @@ export function useGameCaseAnimations(
 		return () => mixer.removeEventListener("finished", handleFinished);
 	}, [mixer]);
 
-	useFrame(() => {
-		if (isAnimating.current && renderEnabled.current) {
-			invalidate();
-		}
-	});
-
-	return { dismissActiveLayer, interactWithModel };
+	return { dismissActiveLayer, interactWithModel, isAnimating };
 }
