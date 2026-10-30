@@ -20,8 +20,8 @@ import {
 import { MeshLineGeometry } from "meshline";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { signalLazySceneReady } from "@/components/ui/loading/lazySceneEvents";
 import SceneErrorBoundary from "@/components/ui/loading/SceneErrorBoundary";
+import { useSceneReady } from "@/components/ui/loading/useSceneReady";
 import cardGLB from "./assets/card.glb?url";
 import holographicFragment from "./assets/holographic.frag";
 import holographicPostFragment from "./assets/holographic-post.frag";
@@ -168,6 +168,7 @@ const HOLO_DEFAULTS = {
 } as const;
 
 function Band({ boundaryId }: LanyardProps) {
+	useSceneReady(boundaryId);
 	const band = useRef<THREE.Mesh<MeshLineGeometry>>(null);
 	const fixed = useRigidBodyRef();
 	const j1 = useRigidBodyRef();
@@ -180,7 +181,6 @@ function Band({ boundaryId }: LanyardProps) {
 	const j3Point = useRef<THREE.Group>(null);
 	const cardMaterial = useRef<THREE.Mesh>(null);
 	const canvasSize = useThree((state) => state.size);
-	const readySent = useRef(false);
 
 	const vec = new THREE.Vector3();
 	const ang = new THREE.Vector3();
@@ -293,11 +293,6 @@ function Band({ boundaryId }: LanyardProps) {
 	}, [hovered, dragged]);
 
 	useFrame((state) => {
-		if (!readySent.current) {
-			readySent.current = true;
-			signalLazySceneReady(boundaryId);
-		}
-
 		if (dragged && typeof dragged !== "boolean") {
 			state.raycaster.setFromCamera(state.pointer, state.camera);
 			if (state.raycaster.ray.intersectPlane(dragPlane, vec)) {

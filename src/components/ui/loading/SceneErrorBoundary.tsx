@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { signalLazySceneError } from "./lazySceneEvents";
+import { signalLazySceneError } from "@/components/ui/loading/sceneLifecycle";
 
 interface Props {
 	boundaryId: string;
