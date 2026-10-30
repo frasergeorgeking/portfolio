@@ -17,6 +17,7 @@ The site is built with Astro primarily for its server-first approach. The site i
 - **[Biome](https://biomejs.dev/)** - Linting and formatting
 
 ## CI/CD
+
 - **PR Checks** - Runs Biome linting/formatting checks, validates commit messages with commitlint, validates the project builds, and performs performance testing with sitespeed.io on all pull requests to `main`. Performance budgets gate merges if regressions are detected.
 - **Production Performance** - Manual workflow to test live site performance with 4G throttling using sitespeed.io. Results are stored as artifacts indefinitely.
 - **Release** - Automatically creates semantic releases on pushes to `main` branch
@@ -25,19 +26,19 @@ The site is built with Astro primarily for its server-first approach. The site i
 
 All commands are run from the root of the project, from a terminal:
 
-| Command                   | Action                                                      |
-| :------------------------ | :---------------------------------------------------------- |
-| `pnpm install`            | Install project dependencies                                |
-| `pnpm dev`                | Start local dev server at `localhost:4321` (with host flag) |
-| `pnpm build`              | Build production site to `./dist/`                          |
-| `pnpm preview`            | Preview production build locally before deploying           |
-| `pnpm astro ...`          | Run Astro CLI commands (e.g., `astro add`, `astro check`)  |
-| `pnpm astro -- --help`    | Get help using the Astro CLI                                |
-| `pnpm check`              | Run Biome linter and formatter with auto-fix                |
-| `pnpm check:ci`           | Run Biome checks without auto-fix (for CI/CD)              |
-| `pnpm lint`               | Run Biome linter with auto-fix                              |
-| `pnpm format`             | Run Biome formatter with auto-fix                           |
-| `pnpm release`            | Create automated release with semantic-release              |
+| Command                | Action                                                      |
+| :--------------------- | :---------------------------------------------------------- |
+| `pnpm install`         | Install project dependencies                                |
+| `pnpm dev`             | Start local dev server at `localhost:4321` (with host flag) |
+| `pnpm build`           | Build production site to `./dist/`                          |
+| `pnpm preview`         | Preview production build locally before deploying           |
+| `pnpm astro ...`       | Run Astro CLI commands (e.g., `astro add`, `astro check`)   |
+| `pnpm astro -- --help` | Get help using the Astro CLI                                |
+| `pnpm check`           | Run Biome linter and formatter with auto-fix                |
+| `pnpm check:ci`        | Run Biome checks without auto-fix (for CI/CD)               |
+| `pnpm lint`            | Run Biome linter with auto-fix                              |
+| `pnpm format`          | Run Biome formatter with auto-fix                           |
+| `pnpm release`         | Create automated release with semantic-release              |
 
 ## Contributing
 
