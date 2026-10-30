@@ -18,8 +18,8 @@ import {
 	useRef,
 } from "react";
 import * as THREE from "three";
-import { signalLazySceneReady } from "@/components/ui/loading/lazySceneEvents";
 import LazySceneErrorBoundary from "@/components/ui/loading/SceneErrorBoundary";
+import { useSceneReady } from "@/components/ui/loading/useSceneReady";
 import caseGLB from "./assets/psx-case.glb?url";
 import type { GameCaseTextureUrls } from "./types";
 import { useGameCaseAnimations } from "./useGameCaseAnimations";
@@ -154,8 +154,8 @@ function GameCaseModel({
 	initialRotationY,
 	canvasMissHandler,
 }: GameCaseModelProps) {
+	useSceneReady(boundaryId);
 	const group = useRef<THREE.Group>(null);
-	const readySent = useRef(false);
 	const isDragging = useRef(false);
 	const isGliding = useRef(false);
 	const momentumVelocity = useRef(0);
@@ -434,11 +434,6 @@ function GameCaseModel({
 	}, [prepared]);
 
 	useFrame((_, delta) => {
-		if (!readySent.current) {
-			readySent.current = true;
-			signalLazySceneReady(boundaryId);
-		}
-
 		if (!group.current || isDragging.current) {
 			return;
 		}
