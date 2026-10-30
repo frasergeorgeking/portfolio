@@ -1,0 +1,25 @@
+name: Setup project
+description: Configure pnpm and Node.js, cache the pnpm store, and install dependencies.
+
+inputs:
+  install-dependencies:
+    description: Whether to install project dependencies from the lockfile.
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v6
+
+    - name: Setup node
+      uses: actions/setup-node@v7
+      with:
+        node-version: "22"
+        cache: "pnpm"
+
+    - name: Install dependencies
+      if: ${{ inputs.install-dependencies == 'true' }}
+      shell: bash
+      run: pnpm install --frozen-lockfile

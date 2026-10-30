@@ -47,22 +47,16 @@ jobs:
       - name: Pull sitespeed.io image
         run: docker pull sitespeedio/sitespeed.io:${{ env.SITESPEED_VERSION }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Setup node
-        uses: actions/setup-node@v7
+      - name: Setup project
+        uses: ./.github/actions/setup
         with:
-          node-version: "22"
-          cache: "pnpm"
+          install-dependencies: ${{ !contains(inputs.base-url, 'localhost') }}
 
       # Local PR runs reuse the build artifact. Remote runs build the checked-out
       # revision so route discovery has the same source of truth.
       - name: Build project for route discovery (if testing remote)
         if: ${{ !contains(inputs.base-url, 'localhost') }}
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm run build
+        run: pnpm run build
 
       - name: Install serve (if testing localhost)
         if: contains(inputs.base-url, 'localhost')
